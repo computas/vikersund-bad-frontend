@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAvtaler } from "@/hooks";
 import { useBehandlere } from "@/hooks/useBehandlere";
+import { usePasienter } from "@/hooks/usePasienter";
 import { InfoField } from "./InfoField";
 import { WeekCalendar } from "./WeekCalendar";
 
@@ -14,6 +15,7 @@ export function BehandlerTab() {
     error,
   } = useAvtaler({ startDato: "2026-02-09" });
   const { data: behandlere = [] } = useBehandlere();
+  const { data: pasienter = [] } = usePasienter();
 
   const selected = behandlere.find((b) => b.id === selectedId);
   const behandlerAvtaler = avtaler.filter((a) => a.behandlerId === selectedId);
@@ -63,7 +65,13 @@ export function BehandlerTab() {
             </p>
           )}
 
-          {!isLoading && !error && <WeekCalendar avtaler={behandlerAvtaler} />}
+          {!isLoading && !error && (
+            <WeekCalendar
+              avtaler={behandlerAvtaler}
+              viewMode="behandler"
+              pasienter={pasienter}
+            />
+          )}
         </div>
       )}
     </div>

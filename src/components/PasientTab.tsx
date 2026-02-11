@@ -5,6 +5,7 @@ import { useAvtaler } from "@/hooks";
 import { InfoField } from "./InfoField";
 import { WeekCalendar } from "./WeekCalendar";
 import { usePasienter } from "@/hooks/usePasienter";
+import { useBehandlere } from "@/hooks/useBehandlere";
 
 export function PasientTab() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -14,6 +15,7 @@ export function PasientTab() {
     error,
   } = useAvtaler({ startDato: "2026-02-09" });
   const { data: pasienter = [] } = usePasienter();
+  const { data: behandlere = [] } = useBehandlere();
 
   const selected = pasienter.find((p) => p.id === selectedId);
   const pasientAvtaler = avtaler.filter((a) => a.pasientId === selectedId);
@@ -36,7 +38,7 @@ export function PasientTab() {
             key={p.id}
             value={p.id}
           >
-            {p.navn} ({p.diagnose})
+            {p.navn} ({p.ytelse})
           </option>
         ))}
       </select>
@@ -55,10 +57,6 @@ export function PasientTab() {
               label="Diagnose"
               value={selected.diagnose}
             />
-            <div>
-              {avtaler[0].dato} {avtaler[0].startTid}
-              {avtaler[0].beskrivelse}
-            </div>
           </div>
 
           {isLoading && (
@@ -71,7 +69,13 @@ export function PasientTab() {
             </p>
           )}
 
-          {!isLoading && !error && <WeekCalendar avtaler={pasientAvtaler} />}
+          {!isLoading && !error && (
+            <WeekCalendar
+              avtaler={pasientAvtaler}
+              viewMode="pasient"
+              behandlere={behandlere}
+            />
+          )}
         </div>
       )}
     </div>

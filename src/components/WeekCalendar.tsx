@@ -1,10 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Avtale } from "@/types";
+import { Avtale, Pasient, Behandler } from "@/types";
 
 type WeekCalendarProps = {
   avtaler: Avtale[];
+  viewMode: "pasient" | "behandler";
+  pasienter?: Pasient[];
+  behandlere?: Behandler[];
 };
 
 // Generer 15-minutters slots fra 09:00 til 16:00
@@ -103,7 +106,17 @@ function getAvtaleForSlot(
 }
 
 
-export function WeekCalendar({ avtaler }: WeekCalendarProps) {
+export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [] }: WeekCalendarProps) {
+  const getPersonNavn = (avtale: Avtale): string | null => {
+    if (viewMode === "pasient") {
+      const behandler = behandlere.find((b) => b.id === avtale.behandlerId);
+      return behandler?.navn ?? null;
+    } else {
+      const pasient = pasienter.find((p) => p.id === avtale.pasientId);
+      return pasient?.navn ?? null;
+    }
+  };
+
   const [currentMonday, setCurrentMonday] = useState(() => getMondayOfWeek(new Date()));
 
   const ukedager = getWeekDatesFromMonday(currentMonday);
@@ -270,6 +283,11 @@ export function WeekCalendar({ avtaler }: WeekCalendarProps) {
                               <div className="truncate font-medium text-blue-900 dark:text-blue-100">
                                 {slotInfo.avtale.beskrivelse}
                               </div>
+                              {getPersonNavn(slotInfo.avtale) && (
+                                <div className="truncate text-blue-700 dark:text-blue-300">
+                                  {getPersonNavn(slotInfo.avtale)}
+                                </div>
+                              )}
                               <div className="truncate text-blue-600 dark:text-blue-400">
                                 {slotInfo.avtale.startTid}-{slotInfo.avtale.sluttTid}
                               </div>

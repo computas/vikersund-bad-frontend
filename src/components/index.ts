@@ -3,3 +3,4 @@ export { InfoField } from "./InfoField";
 export { PasientTab } from "./PasientTab";
 export { BehandlerTab } from "./BehandlerTab";
 export { WeekCalendar } from "./WeekCalendar";
+export { IkkePlanlagtTab } from "./IkkePlanlagtTab";

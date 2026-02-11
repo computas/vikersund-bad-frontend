@@ -3,6 +3,7 @@ export type Pasient = {
   navn: string;
   alder: number;
   diagnose: string;
+  ytelse: string;
 };
 
 export type Behandler = {
@@ -19,4 +20,12 @@ export type Avtale = {
   startTid: string; // HH:MM
   sluttTid: string; // HH:MM
   beskrivelse: string;
+};
+
+export type IkkePlanlagt = {
+  pasientId: number;
+  pasientNavn: string;
+  type: string;
+  beskrivelse: string;
+  årsak: string;
 };
