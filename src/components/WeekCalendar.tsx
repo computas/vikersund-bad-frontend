@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Avtale, Pasient, Behandler } from "@/types";
 
 type WeekCalendarProps = {
@@ -8,6 +7,8 @@ type WeekCalendarProps = {
   viewMode: "pasient" | "behandler";
   pasienter?: Pasient[];
   behandlere?: Behandler[];
+  currentMonday: Date;
+  onWeekChange: (monday: Date) => void;
 };
 
 // Generer 15-minutters slots fra 09:00 til 16:00
@@ -28,7 +29,7 @@ const MANEDER = [
   "Juli", "August", "September", "Oktober", "November", "Desember"
 ];
 
-function getMondayOfWeek(date: Date): Date {
+export function getMondayOfWeek(date: Date): Date {
   const d = new Date(date);
   const day = d.getDay();
   const diff = d.getDate() - day + (day === 0 ? -6 : 1);
@@ -38,7 +39,7 @@ function getMondayOfWeek(date: Date): Date {
 }
 
 // Formater dato som YYYY-MM-DD i lokal tidssone (ikke UTC)
-function formatDateLocal(date: Date): string {
+export function formatDateLocal(date: Date): string {
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const day = date.getDate().toString().padStart(2, "0");
@@ -106,7 +107,7 @@ function getAvtaleForSlot(
 }
 
 
-export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [] }: WeekCalendarProps) {
+export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [], currentMonday, onWeekChange }: WeekCalendarProps) {
   const getPersonNavn = (avtale: Avtale): string | null => {
     if (viewMode === "pasient") {
       const behandler = behandlere.find((b) => b.id === avtale.behandlerId);
@@ -117,8 +118,6 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
     }
   };
 
-  const [currentMonday, setCurrentMonday] = useState(() => getMondayOfWeek(new Date()));
-
   const ukedager = getWeekDatesFromMonday(currentMonday);
   const weekNumber = getWeekNumber(currentMonday);
   const currentYear = currentMonday.getFullYear();
@@ -127,23 +126,23 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
   const navigateWeek = (delta: number) => {
     const newMonday = new Date(currentMonday);
     newMonday.setDate(currentMonday.getDate() + delta * 7);
-    setCurrentMonday(newMonday);
+    onWeekChange(newMonday);
   };
 
   const navigateMonth = (delta: number) => {
     const newDate = new Date(currentMonday);
     newDate.setMonth(currentMonday.getMonth() + delta);
-    setCurrentMonday(getMondayOfWeek(newDate));
+    onWeekChange(getMondayOfWeek(newDate));
   };
 
   const navigateYear = (delta: number) => {
     const newDate = new Date(currentMonday);
     newDate.setFullYear(currentMonday.getFullYear() + delta);
-    setCurrentMonday(getMondayOfWeek(newDate));
+    onWeekChange(getMondayOfWeek(newDate));
   };
 
   const goToToday = () => {
-    setCurrentMonday(getMondayOfWeek(new Date()));
+    onWeekChange(getMondayOfWeek(new Date()));
   };
 
   return (

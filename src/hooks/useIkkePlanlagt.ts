@@ -6,6 +6,10 @@ const API_URL = "http://localhost:8000/ikke-planlagt";
 async function fetchIkkePlanlagt(): Promise<IkkePlanlagt[]> {
   const response = await fetch(API_URL);
 
+  if (response.status === 404) {
+    return [];
+  }
+
   if (!response.ok) {
     throw new Error(`Feil ved henting av ikke-planlagte timer: ${response.status}`);
   }

@@ -29,3 +29,23 @@ export type IkkePlanlagt = {
   beskrivelse: string;
   årsak: string;
 };
+
+export type OptimeringResultat = {
+  status: string;
+  planlagt: number;
+  ikkePlanlagt: number;
+  totalt: number;
+  objektverdi: number;
+  losningstid: number;
+  tidspunkt: string;
+};
+
+export type OptimeringStatus = {
+  kjorer: boolean;
+  harResultat: boolean;
+  sistKjort: string | null;
+  planlagt: number | null;
+  ikkePlanlagt: number | null;
+  totalt: number | null;
+  solverStatus: string | null;
+};

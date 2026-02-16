@@ -5,15 +5,17 @@ import { useAvtaler } from "@/hooks";
 import { useBehandlere } from "@/hooks/useBehandlere";
 import { usePasienter } from "@/hooks/usePasienter";
 import { InfoField } from "./InfoField";
-import { WeekCalendar } from "./WeekCalendar";
+import { WeekCalendar, getMondayOfWeek, formatDateLocal } from "./WeekCalendar";
 
 export function BehandlerTab() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [currentMonday, setCurrentMonday] = useState(() => getMondayOfWeek(new Date()));
+  const startDato = formatDateLocal(currentMonday);
   const {
     data: avtaler = [],
     isLoading,
     error,
-  } = useAvtaler({ startDato: "2026-02-09" });
+  } = useAvtaler({ startDato });
   const { data: behandlere = [] } = useBehandlere();
   const { data: pasienter = [] } = usePasienter();
 
@@ -70,6 +72,8 @@ export function BehandlerTab() {
               avtaler={behandlerAvtaler}
               viewMode="behandler"
               pasienter={pasienter}
+              currentMonday={currentMonday}
+              onWeekChange={setCurrentMonday}
             />
           )}
         </div>

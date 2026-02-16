@@ -16,10 +16,13 @@ async function fetchAvtaler(startDato?: string): Promise<Avtale[]> {
 
   const response = await fetch(url.toString());
 
+  if (response.status === 404) {
+    return [];
+  }
+
   if (!response.ok) {
     throw new Error(`Feil ved henting av avtaler: ${response.status}`);
   }
-  console.log("Fetched avtaler:", await response.clone().json());
 
   return response.json();
 }

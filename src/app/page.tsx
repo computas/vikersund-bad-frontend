@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Tabs, PasientTab, BehandlerTab, IkkePlanlagtTab } from "@/components";
+import { Tabs, PasientTab, BehandlerTab, IkkePlanlagtTab, OptimeringPanel } from "@/components";
 
 const tabs = [
   { id: "pasient", label: "Pasient" },
@@ -18,6 +18,8 @@ export default function Home() {
         <h1 className="mb-8 text-3xl font-bold text-zinc-900 dark:text-white">
           Vikersund Bad
         </h1>
+
+        <OptimeringPanel />
 
         <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
