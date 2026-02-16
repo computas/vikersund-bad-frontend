@@ -1,6 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { Avtale, Pasient, Behandler } from "@/types";
+import { getAvtaleColor, getAvtaleCategory, getCategoryColor } from "@/lib/colors";
+import { AvtaleModal } from "./AvtaleModal";
 
 type WeekCalendarProps = {
   avtaler: Avtale[];
@@ -108,6 +111,8 @@ function getAvtaleForSlot(
 
 
 export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [], currentMonday, onWeekChange }: WeekCalendarProps) {
+  const [selectedAvtale, setSelectedAvtale] = useState<Avtale | null>(null);
+
   const getPersonNavn = (avtale: Avtale): string | null => {
     if (viewMode === "pasient") {
       const behandler = behandlere.find((b) => b.id === avtale.behandlerId);
@@ -122,6 +127,9 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
   const weekNumber = getWeekNumber(currentMonday);
   const currentYear = currentMonday.getFullYear();
   const currentMonth = currentMonday.getMonth();
+
+  // Finn unike kategorier for legend
+  const activeCategories = [...new Set(avtaler.map((a) => getAvtaleCategory(a.beskrivelse)))];
 
   const navigateWeek = (delta: number) => {
     const newMonday = new Date(currentMonday);
@@ -225,6 +233,21 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
             </button>
           </div>
         </div>
+
+        {/* Legend */}
+        {activeCategories.length > 0 && (
+          <div className="flex flex-wrap gap-3 text-xs">
+            {activeCategories.map((cat) => {
+              const color = getCategoryColor(cat);
+              return (
+                <div key={cat} className="flex items-center gap-1.5">
+                  <span className={`inline-block h-2.5 w-2.5 rounded-full ${color.dot}`} />
+                  <span className="text-zinc-600 dark:text-zinc-400">{color.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Calendar grid */}
@@ -264,6 +287,7 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
                   const roundedClass = slotInfo
                     ? `${slotInfo.isStart ? "rounded-t" : ""} ${slotInfo.isEnd ? "rounded-b" : ""}`
                     : "";
+                  const color = slotInfo ? getAvtaleColor(slotInfo.avtale.beskrivelse) : null;
                   return (
                     <div
                       key={dag.dato}
@@ -271,23 +295,24 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
                         slotInfo ? "" : "p-0.5"
                       }`}
                     >
-                      {slotInfo && (
+                      {slotInfo && color && (
                         <div
-                          className={`h-full overflow-hidden bg-blue-100 text-xs dark:bg-blue-900 ${roundedClass} ${
-                            slotInfo.isStart ? "px-1.5 pt-1" : "px-1.5"
+                          onClick={() => slotInfo.isStart && setSelectedAvtale(slotInfo.avtale)}
+                          className={`h-full overflow-hidden ${color.bg} ${color.bgDark} text-xs ${roundedClass} ${
+                            slotInfo.isStart ? "px-1.5 pt-1 cursor-pointer hover:brightness-95 dark:hover:brightness-110" : "px-1.5"
                           } ${slotInfo.isEnd ? "pb-1" : ""}`}
                         >
                           {slotInfo.isStart && (
                             <>
-                              <div className="truncate font-medium text-blue-900 dark:text-blue-100">
+                              <div className={`truncate font-medium ${color.text} ${color.textDark}`}>
                                 {slotInfo.avtale.beskrivelse}
                               </div>
                               {getPersonNavn(slotInfo.avtale) && (
-                                <div className="truncate text-blue-700 dark:text-blue-300">
+                                <div className={`truncate ${color.textSecondary} ${color.textSecondaryDark}`}>
                                   {getPersonNavn(slotInfo.avtale)}
                                 </div>
                               )}
-                              <div className="truncate text-blue-600 dark:text-blue-400">
+                              <div className={`truncate ${color.textSecondary} ${color.textSecondaryDark}`}>
                                 {slotInfo.avtale.startTid}-{slotInfo.avtale.sluttTid}
                               </div>
                             </>
@@ -302,6 +327,16 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
           })}
         </div>
       </div>
+
+      {/* Avtale detail modal */}
+      {selectedAvtale && (
+        <AvtaleModal
+          avtale={selectedAvtale}
+          personNavn={getPersonNavn(selectedAvtale)}
+          viewMode={viewMode}
+          onClose={() => setSelectedAvtale(null)}
+        />
+      )}
     </div>
   );
 }

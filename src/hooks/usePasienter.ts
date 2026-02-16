@@ -1,10 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Pasient } from "@/types";
-
-const API_URL = "http://localhost:8000/pasienter";
+import { API_URL } from "@/lib/api";
 
 async function fetchPasienter(): Promise<Pasient[]> {
-  const response = await fetch(API_URL);
+  const response = await fetch(`${API_URL}/pasienter`);
 
   if (!response.ok) {
     throw new Error(`Feil ved henting av pasienter: ${response.status}`);

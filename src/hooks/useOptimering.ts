@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { OptimeringResultat, OptimeringStatus } from "@/types";
-
-const API_URL = "http://localhost:8000";
+import { API_URL } from "@/lib/api";
 
 async function triggerOptimering(): Promise<OptimeringResultat> {
   const response = await fetch(`${API_URL}/optimer`, {

@@ -1,10 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { IkkePlanlagt } from "@/types";
-
-const API_URL = "http://localhost:8000/ikke-planlagt";
+import { API_URL } from "@/lib/api";
 
 async function fetchIkkePlanlagt(): Promise<IkkePlanlagt[]> {
-  const response = await fetch(API_URL);
+  const response = await fetch(`${API_URL}/ikke-planlagt`);
 
   if (response.status === 404) {
     return [];

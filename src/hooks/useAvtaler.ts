@@ -1,14 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { Avtale } from "@/types";
-
-const API_URL = "http://localhost:8000/avtaler";
+import { API_URL } from "@/lib/api";
 
 type UseAvtalerOptions = {
   startDato?: string; // YYYY-MM-DD
 };
 
 async function fetchAvtaler(startDato?: string): Promise<Avtale[]> {
-  const url = new URL(API_URL);
+  const url = new URL(`${API_URL}/avtaler`);
 
   if (startDato) {
     url.searchParams.set("start_date", startDato);
