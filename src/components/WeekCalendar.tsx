@@ -143,12 +143,6 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
     onWeekChange(getMondayOfWeek(newDate));
   };
 
-  const navigateYear = (delta: number) => {
-    const newDate = new Date(currentMonday);
-    newDate.setFullYear(currentMonday.getFullYear() + delta);
-    onWeekChange(getMondayOfWeek(newDate));
-  };
-
   const goToToday = () => {
     onWeekChange(getMondayOfWeek(new Date()));
   };
@@ -157,81 +151,48 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
     <div className="mt-6">
       <div className="mb-4 flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
-            Ukesplan
-          </h3>
           <button
-            onClick={goToToday}
-            className="rounded bg-zinc-200 px-3 py-1 text-sm font-medium text-zinc-700 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600"
+            onClick={() => navigateWeek(-1)}
+            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-700"
           >
-            I dag
+            Forrige
+          </button>
+          <div className="text-center">
+            <span className="text-lg font-semibold text-zinc-900 dark:text-white">
+              Uke {weekNumber}
+            </span>
+            <span className="ml-2 text-sm text-zinc-500 dark:text-zinc-400">
+              {MANEDER[currentMonth]} {currentYear}
+            </span>
+          </div>
+          <button
+            onClick={() => navigateWeek(1)}
+            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-700"
+          >
+            Neste
           </button>
         </div>
 
-        {/* Navigation */}
-        <div className="flex flex-wrap items-center gap-4 text-sm">
-          {/* Year navigation */}
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => navigateYear(-1)}
-              className="rounded p-1.5 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-700"
-              title="Forrige ar"
-            >
-              <span className="text-xs">&#171;&#171;</span>
-            </button>
-            <span className="min-w-[50px] text-center font-medium text-zinc-700 dark:text-zinc-300">
-              {currentYear}
-            </span>
-            <button
-              onClick={() => navigateYear(1)}
-              className="rounded p-1.5 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-700"
-              title="Neste ar"
-            >
-              <span className="text-xs">&#187;&#187;</span>
-            </button>
-          </div>
-
-          {/* Month navigation */}
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => navigateMonth(-1)}
-              className="rounded p-1.5 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-700"
-              title="Forrige maned"
-            >
-              <span className="text-xs">&#8249;&#8249;</span>
-            </button>
-            <span className="min-w-[90px] text-center font-medium text-zinc-700 dark:text-zinc-300">
-              {MANEDER[currentMonth]}
-            </span>
-            <button
-              onClick={() => navigateMonth(1)}
-              className="rounded p-1.5 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-700"
-              title="Neste maned"
-            >
-              <span className="text-xs">&#8250;&#8250;</span>
-            </button>
-          </div>
-
-          {/* Week navigation */}
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => navigateWeek(-1)}
-              className="rounded p-1.5 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-700"
-              title="Forrige uke"
-            >
-              <span className="text-xs">&#8249;</span>
-            </button>
-            <span className="min-w-[60px] text-center font-medium text-zinc-700 dark:text-zinc-300">
-              Uke {weekNumber}
-            </span>
-            <button
-              onClick={() => navigateWeek(1)}
-              className="rounded p-1.5 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-700"
-              title="Neste uke"
-            >
-              <span className="text-xs">&#8250;</span>
-            </button>
-          </div>
+        {/* Secondary controls */}
+        <div className="flex items-center justify-center gap-2 text-sm">
+          <button
+            onClick={() => navigateMonth(-1)}
+            className="rounded px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-700"
+          >
+            -1 md
+          </button>
+          <button
+            onClick={goToToday}
+            className="rounded bg-zinc-200 px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600"
+          >
+            I dag
+          </button>
+          <button
+            onClick={() => navigateMonth(1)}
+            className="rounded px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-700"
+          >
+            +1 md
+          </button>
         </div>
 
         {/* Legend */}
@@ -246,6 +207,15 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
                 </div>
               );
             })}
+            <div className="mx-1 h-4 w-px bg-zinc-300 dark:bg-zinc-600" />
+            <div className="flex items-center gap-1.5">
+              <span className="inline-block rounded border-l-3 border-l-zinc-400 bg-zinc-500/20 px-1 py-px text-[9px] font-semibold uppercase leading-tight text-zinc-700 dark:border-l-zinc-500 dark:bg-zinc-400/20 dark:text-zinc-300">Gruppe</span>
+              <span className="text-zinc-600 dark:text-zinc-400">Gruppeaktivitet</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="inline-block rounded bg-blue-100 px-1 py-px text-[9px] font-semibold uppercase leading-tight text-blue-700 dark:bg-blue-900 dark:text-blue-300">Ind.</span>
+              <span className="text-zinc-600 dark:text-zinc-400">Individuell (optimert)</span>
+            </div>
           </div>
         )}
       </div>
@@ -299,13 +269,26 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
                         <div
                           onClick={() => slotInfo.isStart && setSelectedAvtale(slotInfo.avtale)}
                           className={`h-full overflow-hidden ${color.bg} ${color.bgDark} text-xs ${roundedClass} ${
+                            slotInfo.avtale.type === "gruppe"
+                              ? "border-l-3 border-l-zinc-400 dark:border-l-zinc-500"
+                              : ""
+                          } ${
                             slotInfo.isStart ? "px-1.5 pt-1 cursor-pointer hover:brightness-95 dark:hover:brightness-110" : "px-1.5"
                           } ${slotInfo.isEnd ? "pb-1" : ""}`}
                         >
                           {slotInfo.isStart && (
                             <>
-                              <div className={`truncate font-medium ${color.text} ${color.textDark}`}>
-                                {slotInfo.avtale.beskrivelse}
+                              <div className="flex items-center gap-1">
+                                <span className={`inline-block rounded px-1 py-px text-[9px] font-semibold uppercase leading-tight ${
+                                  slotInfo.avtale.type === "gruppe"
+                                    ? "bg-zinc-500/20 text-zinc-700 dark:bg-zinc-400/20 dark:text-zinc-300"
+                                    : "bg-white/40 text-current dark:bg-black/20"
+                                }`}>
+                                  {slotInfo.avtale.type === "gruppe" ? "Gruppe" : "Ind."}
+                                </span>
+                                <span className={`truncate font-medium ${color.text} ${color.textDark}`}>
+                                  {slotInfo.avtale.beskrivelse}
+                                </span>
                               </div>
                               {getPersonNavn(slotInfo.avtale) && (
                                 <div className={`truncate ${color.textSecondary} ${color.textSecondaryDark}`}>

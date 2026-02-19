@@ -15,11 +15,12 @@ export type Behandler = {
 export type Avtale = {
   id: number;
   pasientId: number;
-  behandlerId: number;
+  behandlerId: number | null;
   dato: string; // YYYY-MM-DD
   startTid: string; // HH:MM
   sluttTid: string; // HH:MM
   beskrivelse: string;
+  type?: "gruppe" | "individuell";
 };
 
 export type IkkePlanlagt = {
@@ -38,6 +39,39 @@ export type OptimeringResultat = {
   objektverdi: number;
   losningstid: number;
   tidspunkt: string;
+};
+
+export type BehovTemplate = {
+  type: string;
+  varighet: number;
+  antall: number;
+  beskrivelse: string;
+};
+
+export type GruppePasient = {
+  id: number;
+  navn: string;
+  diagnose: string;
+  ekstraBehov: BehovTemplate[];
+};
+
+export type GruppeAktivitetPlan = {
+  dag: number;
+  dagNavn: string;
+  startTid: string;
+  sluttTid: string;
+  aktivitet: string;
+};
+
+export type Gruppe = {
+  id: string;
+  navn: string;
+  startDato: string | null;
+  antallPasienter: number;
+  pasienter: GruppePasient[];
+  gruppeAktiviteter: number;
+  ukentligPlan: GruppeAktivitetPlan[];
+  individuelleBehovPerPasient: BehovTemplate[];
 };
 
 export type OptimeringStatus = {

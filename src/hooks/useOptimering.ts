@@ -15,6 +15,14 @@ async function triggerOptimering(): Promise<OptimeringResultat> {
   return response.json();
 }
 
+async function resetOptimeringFn(): Promise<void> {
+  const response = await fetch(`${API_URL}/optimer/reset`, { method: "POST" });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ detail: "Ukjent feil" }));
+    throw new Error(error.detail || `Feil ved nullstilling: ${response.status}`);
+  }
+}
+
 async function fetchOptimeringStatus(): Promise<OptimeringStatus> {
   const response = await fetch(`${API_URL}/optimer/status`);
 
@@ -42,6 +50,16 @@ export function useOptimering() {
     },
   });
 
+  const resetMutation = useMutation({
+    mutationFn: resetOptimeringFn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["avtaler"] });
+      queryClient.invalidateQueries({ queryKey: ["ikke-planlagt"] });
+      queryClient.invalidateQueries({ queryKey: ["optimer-status"] });
+      mutation.reset();
+    },
+  });
+
   return {
     status: statusQuery.data,
     isLoadingStatus: statusQuery.isLoading,
@@ -49,5 +67,7 @@ export function useOptimering() {
     isOptimering: mutation.isPending,
     optimeringResultat: mutation.data,
     optimeringError: mutation.error,
+    resetOptimering: resetMutation.mutate,
+    isResetting: resetMutation.isPending,
   };
 }

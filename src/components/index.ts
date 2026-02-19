@@ -4,5 +4,6 @@ export { AvtaleModal } from "./AvtaleModal";
 export { PasientTab } from "./PasientTab";
 export { BehandlerTab } from "./BehandlerTab";
 export { WeekCalendar } from "./WeekCalendar";
+export { GruppeOversikt } from "./GruppeOversikt";
 export { IkkePlanlagtTab } from "./IkkePlanlagtTab";
 export { OptimeringPanel } from "./OptimeringPanel";

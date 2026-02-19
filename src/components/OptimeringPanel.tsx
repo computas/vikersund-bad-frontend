@@ -2,13 +2,19 @@
 
 import { useOptimering } from "@/hooks/useOptimering";
 
-export function OptimeringPanel() {
+type OptimeringPanelProps = {
+  onNavigateToTab?: (tabId: string) => void;
+};
+
+export function OptimeringPanel({ onNavigateToTab }: OptimeringPanelProps) {
   const {
     status,
     runOptimering,
     isOptimering,
     optimeringResultat,
     optimeringError,
+    resetOptimering,
+    isResetting,
   } = useOptimering();
 
   return (
@@ -26,23 +32,44 @@ export function OptimeringPanel() {
             </p>
           )}
           {!status?.harResultat && !isOptimering && (
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Ingen optimering er kjort enna.
-            </p>
+            <div className="text-sm text-zinc-500 dark:text-zinc-400">
+              <p className="font-medium text-zinc-700 dark:text-zinc-300">
+                Gruppeaktiviteter er allerede plassert i kalenderen.
+              </p>
+              <p className="mt-0.5 text-xs">
+                Trykk «Kjor optimering» for a planlegge individuelle timer
+                (fysioterapi, kontaktperson, ernaering m.m.) rundt gruppeaktivitetene.
+              </p>
+            </div>
           )}
         </div>
 
-        <button
-          onClick={() => runOptimering()}
-          disabled={isOptimering}
-          className={`shrink-0 rounded-md px-4 py-2 text-sm font-medium text-white transition-colors ${
-            isOptimering
-              ? "cursor-not-allowed bg-blue-400"
-              : "bg-blue-600 hover:bg-blue-700"
-          }`}
-        >
-          {isOptimering ? "Optimerer..." : "Kjor optimering"}
-        </button>
+        <div className="flex shrink-0 gap-2">
+          {status?.harResultat && !isOptimering && (
+            <button
+              onClick={() => resetOptimering()}
+              disabled={isResetting}
+              className={`rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition-colors dark:border-zinc-600 dark:text-zinc-300 ${
+                isResetting
+                  ? "cursor-not-allowed opacity-50"
+                  : "hover:bg-zinc-100 dark:hover:bg-zinc-700"
+              }`}
+            >
+              {isResetting ? "Nullstiller..." : "Nullstill"}
+            </button>
+          )}
+          <button
+            onClick={() => runOptimering()}
+            disabled={isOptimering || isResetting}
+            className={`rounded-md px-4 py-2 text-sm font-medium text-white transition-colors ${
+              isOptimering || isResetting
+                ? "cursor-not-allowed bg-blue-400"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
+          >
+            {isOptimering ? "Optimerer..." : "Kjor optimering"}
+          </button>
+        </div>
       </div>
 
       {isOptimering && (
@@ -56,18 +83,25 @@ export function OptimeringPanel() {
       )}
 
       {optimeringResultat && !isOptimering && (
-        <div className="mt-3 rounded-md bg-green-50 p-3 text-sm dark:bg-green-900/20">
-          <p className="font-medium text-green-800 dark:text-green-300">
-            Optimering fullfort
-          </p>
-          <div className="mt-1 text-green-700 dark:text-green-400">
-            <span>
-              {optimeringResultat.planlagt} av {optimeringResultat.totalt} aktiviteter planlagt
-            </span>
-            {" | "}
-            <span>Tid: {optimeringResultat.losningstid}s</span>
-            {" | "}
-            <span>Status: {optimeringResultat.status}</span>
+        <div className="mt-3 rounded-md bg-green-50 p-3 dark:bg-green-900/20">
+          <div className="flex items-start justify-between gap-4">
+            <div className="text-sm">
+              <p className="font-medium text-green-800 dark:text-green-300">
+                Optimering fullfort — {optimeringResultat.planlagt} av{" "}
+                {optimeringResultat.totalt} individuelle timer ble planlagt
+              </p>
+              {optimeringResultat.ikkePlanlagt > 0 && (
+                <p className="mt-1 text-green-700 dark:text-green-400">
+                  {optimeringResultat.ikkePlanlagt} timer kunne ikke plasseres.{" "}
+                  <button
+                    onClick={() => onNavigateToTab?.("ikke-planlagt")}
+                    className="underline hover:no-underline"
+                  >
+                    Se detaljer
+                  </button>
+                </p>
+              )}
+            </div>
           </div>
         </div>
       )}

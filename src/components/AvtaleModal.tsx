@@ -51,6 +51,10 @@ export function AvtaleModal({ avtale, personNavn, viewMode, onClose }: AvtaleMod
 
         <div className="grid gap-2 text-sm">
           <InfoField
+            label="Type"
+            value={avtale.type === "gruppe" ? "Gruppeaktivitet" : "Individuell time"}
+          />
+          <InfoField
             label={viewMode === "pasient" ? "Behandler" : "Pasient"}
             value={personNavn ?? "Ikke tildelt"}
           />
