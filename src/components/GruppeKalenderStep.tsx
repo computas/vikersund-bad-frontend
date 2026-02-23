@@ -18,7 +18,7 @@ export function GruppeKalenderStep() {
 
   const selectedGruppe = grupper.find((g) => g.id === selectedGruppeId);
   const representativePasientId = selectedGruppe?.pasienter[0]?.id ?? null;
-  const gruppeAvtaler = avtaler.filter((a) => a.pasientId === representativePasientId);
+  const gruppeAvtaler = avtaler.filter((a) => a.pasientId === representativePasientId && a.type === "gruppe");
 
   return (
     <div>
