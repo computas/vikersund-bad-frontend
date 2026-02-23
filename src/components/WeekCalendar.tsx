@@ -12,6 +12,7 @@ type WeekCalendarProps = {
   behandlere?: Behandler[];
   currentMonday: Date;
   onWeekChange: (monday: Date) => void;
+  hideNavigation?: boolean;
 };
 
 // Generer 15-minutters slots fra 09:00 til 16:00
@@ -110,7 +111,7 @@ function getAvtaleForSlot(
 }
 
 
-export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [], currentMonday, onWeekChange }: WeekCalendarProps) {
+export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [], currentMonday, onWeekChange, hideNavigation = false }: WeekCalendarProps) {
   const [selectedAvtale, setSelectedAvtale] = useState<Avtale | null>(null);
 
   const getPersonNavn = (avtale: Avtale): string | null => {
@@ -150,13 +151,7 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
   return (
     <div className="mt-6">
       <div className="mb-4 flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => navigateWeek(-1)}
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-700"
-          >
-            Forrige
-          </button>
+        {hideNavigation ? (
           <div className="text-center">
             <span className="text-lg font-semibold text-zinc-900 dark:text-white">
               Uke {weekNumber}
@@ -165,35 +160,53 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
               {MANEDER[currentMonth]} {currentYear}
             </span>
           </div>
-          <button
-            onClick={() => navigateWeek(1)}
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-700"
-          >
-            Neste
-          </button>
-        </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => navigateWeek(-1)}
+                className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-700"
+              >
+                Forrige
+              </button>
+              <div className="text-center">
+                <span className="text-lg font-semibold text-zinc-900 dark:text-white">
+                  Uke {weekNumber}
+                </span>
+                <span className="ml-2 text-sm text-zinc-500 dark:text-zinc-400">
+                  {MANEDER[currentMonth]} {currentYear}
+                </span>
+              </div>
+              <button
+                onClick={() => navigateWeek(1)}
+                className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-700"
+              >
+                Neste
+              </button>
+            </div>
 
-        {/* Secondary controls */}
-        <div className="flex items-center justify-center gap-2 text-sm">
-          <button
-            onClick={() => navigateMonth(-1)}
-            className="rounded px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-700"
-          >
-            -1 md
-          </button>
-          <button
-            onClick={goToToday}
-            className="rounded bg-zinc-200 px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600"
-          >
-            I dag
-          </button>
-          <button
-            onClick={() => navigateMonth(1)}
-            className="rounded px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-700"
-          >
-            +1 md
-          </button>
-        </div>
+            <div className="flex items-center justify-center gap-2 text-sm">
+              <button
+                onClick={() => navigateMonth(-1)}
+                className="rounded px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-700"
+              >
+                -1 md
+              </button>
+              <button
+                onClick={goToToday}
+                className="rounded bg-zinc-200 px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600"
+              >
+                I dag
+              </button>
+              <button
+                onClick={() => navigateMonth(1)}
+                className="rounded px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-700"
+              >
+                +1 md
+              </button>
+            </div>
+          </>
+        )}
 
         {/* Legend */}
         {activeCategories.length > 0 && (
