@@ -30,10 +30,10 @@ export function IkkePlanlagtTab() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            Optimering er ikke kjørt ennå
+            Optimering er ikke kjort enna
           </p>
           <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
-            Kjør optimering fra panelet øverst for å planlegge individuelle timer.
+            Kjor optimering fra panelet overst for a planlegge individuelle timer.
           </p>
         </div>
       );
@@ -54,37 +54,58 @@ export function IkkePlanlagtTab() {
     );
   }
 
+  const individuelleIkke = ikkePlanlagte.filter((i) => i.type !== "GRUPPE");
+  const gruppeDroppet = ikkePlanlagte.filter((i) => i.type === "GRUPPE");
+
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold text-zinc-900 dark:text-white">
-        Ikke-planlagte timer
-      </h2>
-      <div className="space-y-3">
-        {ikkePlanlagte.map((item, index) => (
-          <div
-            key={`${item.pasientId}-${index}`}
-            className="rounded-md border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800"
-          >
-            <h3 className="mb-2 font-medium text-zinc-900 dark:text-white">
-              Pasient: {item.pasientNavn}
-            </h3>
-            <div className="grid gap-1 text-sm">
-              <InfoField
-                label="Type"
-                value={item.type}
-              />
-              <InfoField
-                label="Beskrivelse"
-                value={item.beskrivelse}
-              />
-              <InfoField
-                label="Årsak"
-                value={item.årsak}
-              />
+    <div className="space-y-6">
+      {individuelleIkke.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-xl font-semibold text-zinc-900 dark:text-white">
+            Ikke-planlagte individuelle timer
+          </h2>
+          {individuelleIkke.map((item, index) => (
+            <div
+              key={`ind-${item.pasientId}-${index}`}
+              className="rounded-md border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800"
+            >
+              <h3 className="mb-2 font-medium text-zinc-900 dark:text-white">
+                Pasient: {item.pasientNavn}
+              </h3>
+              <div className="grid gap-1 text-sm">
+                <InfoField label="Type" value={item.type} />
+                <InfoField label="Beskrivelse" value={item.beskrivelse} />
+                <InfoField label="Arsak" value={item.årsak} />
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
+
+      {gruppeDroppet.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-xl font-semibold text-zinc-900 dark:text-white">
+            Droppede gruppeaktiviteter
+          </h2>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Disse gruppeaktivitetene ble fjernet for a gi plass til individuelle timer.
+          </p>
+          {gruppeDroppet.map((item, index) => (
+            <div
+              key={`grp-${item.pasientId}-${index}`}
+              className="rounded-md border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20"
+            >
+              <h3 className="mb-2 font-medium text-zinc-900 dark:text-white">
+                Pasient: {item.pasientNavn}
+              </h3>
+              <div className="grid gap-1 text-sm">
+                <InfoField label="Gruppeaktivitet" value={item.beskrivelse} />
+                <InfoField label="Arsak" value={item.årsak} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
