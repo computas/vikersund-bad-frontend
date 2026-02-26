@@ -94,9 +94,3 @@ export type OptimeringStatus = {
   totalt: number | null;
   solverStatus: string | null;
 };
-
-export type Fravaer = {
-  id: number;
-  dato: string;
-  grunn: string;
-};

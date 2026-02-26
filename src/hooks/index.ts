@@ -4,9 +4,6 @@ export {
   useCreateBehandler,
   useUpdateBehandler,
   useDeleteBehandler,
-  useFravaer,
-  useCreateFravaer,
-  useDeleteFravaer,
 } from "./useBehandlere";
 export { useGrupper } from "./useGrupper";
 export { useIkkePlanlagt } from "./useIkkePlanlagt";
