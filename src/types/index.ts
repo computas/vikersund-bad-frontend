@@ -46,7 +46,7 @@ export type OptimeringResultat = {
   gruppeDroppet: number;
   totalt: number;
   objektverdi: number;
-  losningstid: number;
+  løsningstid: number;
   tidspunkt: string;
 };
 

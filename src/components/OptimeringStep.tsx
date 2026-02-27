@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useOptimering } from "@/hooks/useOptimering";
 import { usePasienter, useBehandlere, useGrupper } from "@/hooks";
+import { SolverProgress } from "./SolverProgress";
 
 export function OptimeringStep() {
   const {
@@ -12,19 +14,23 @@ export function OptimeringStep() {
     optimeringError,
     resetOptimering,
     isResetting,
+    events,
   } = useOptimering();
 
   const { data: pasienter = [] } = usePasienter();
   const { data: behandlere = [] } = useBehandlere();
   const { data: grupper = [] } = useGrupper();
 
-  // Beregn totale individuelle behov
   const totalIndividuelleBehov = grupper.reduce((sum, g) => {
     const behovPerPasient = (g.individuelleBehovPerPasient ?? []).reduce((s, b) => s + b.antall, 0);
-    // Legg til ekstra-behov per pasient
     const ekstraBehov = g.pasienter.reduce((s, p) => s + (p.ekstraBehov ?? []).reduce((s2, b) => s2 + b.antall, 0), 0);
     return sum + behovPerPasient * g.antallPasienter + ekstraBehov;
   }, 0);
+
+  const [hasRun, setHasRun] = useState(false);
+  useEffect(() => {
+    if (isOptimering) setHasRun(true);
+  }, [isOptimering]);
 
   return (
     <div className="flex flex-col items-center py-8">
@@ -35,7 +41,7 @@ export function OptimeringStep() {
         </h2>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Optimeringen planlegger individuelle behandlingstimer (fysioterapi, kontaktperson m.m.)
-          rundt de faste gruppeaktivitetene. Algoritmen respekterer arbeidstid (09:00–16:00),
+          rundt de faste gruppeaktivitetene. Algoritmen respekterer arbeidstid (09:00-16:00),
           lunsj, ingen overlapp for pasienter eller behandlere, og kvalifikasjonskrav.
         </p>
       </div>
@@ -78,24 +84,18 @@ export function OptimeringStep() {
               : "bg-blue-600 hover:bg-blue-700"
           }`}
         >
-          {isOptimering ? "Optimerer..." : status?.harResultat ? "Kjor optimering pa nytt" : "Kjor optimering"}
+          {isOptimering ? "Optimerer..." : status?.harResultat ? "Kjør optimering på nytt" : "Kjør optimering"}
         </button>
       </div>
 
-      {/* Spinner */}
-      {isOptimering && (
-        <div className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
-          <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-          Optimering pagar... Dette kan ta opptil 30 sekunder.
-        </div>
+      {/* Stegvis progress */}
+      {(isOptimering || hasRun) && (
+        <SolverProgress isOptimering={isOptimering} events={events} />
       )}
 
       {/* Resultat */}
       {optimeringResultat && !isOptimering && (
-        <div className="mt-4 w-full max-w-md rounded-lg bg-green-50 p-5 text-center dark:bg-green-900/20">
+        <div className="mt-6 w-full max-w-md rounded-lg bg-green-50 p-5 text-center dark:bg-green-900/20">
           <svg className="mx-auto mb-2 h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
@@ -108,7 +108,7 @@ export function OptimeringStep() {
             </p>
           )}
           <p className="mt-2 text-xs text-green-600 dark:text-green-500">
-            Losningstid: {optimeringResultat.losningstid}s | Ga videre for a se resultatene
+            Løsningstid: {optimeringResultat.løsningstid}s | Gå videre for å se resultatene
           </p>
         </div>
       )}
