@@ -30,10 +30,10 @@ export function IkkePlanlagtTab() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            Optimering er ikke kjort enna
+            Optimering er ikke kjørt ennå
           </p>
           <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
-            Kjor optimering fra panelet overst for a planlegge individuelle timer.
+            Kjør optimering fra panelet øverst for å planlegge individuelle timer.
           </p>
         </div>
       );
@@ -75,7 +75,7 @@ export function IkkePlanlagtTab() {
               <div className="grid gap-1 text-sm">
                 <InfoField label="Type" value={item.type} />
                 <InfoField label="Beskrivelse" value={item.beskrivelse} />
-                <InfoField label="Arsak" value={item.årsak} />
+                <InfoField label="Årsak" value={item.årsak} />
               </div>
             </div>
           ))}
@@ -88,7 +88,7 @@ export function IkkePlanlagtTab() {
             Droppede gruppeaktiviteter
           </h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Disse gruppeaktivitetene ble fjernet for a gi plass til individuelle timer.
+            Disse gruppeaktivitetene ble fjernet for å gi plass til individuelle timer.
           </p>
           {gruppeDroppet.map((item, index) => (
             <div
@@ -100,7 +100,7 @@ export function IkkePlanlagtTab() {
               </h3>
               <div className="grid gap-1 text-sm">
                 <InfoField label="Gruppeaktivitet" value={item.beskrivelse} />
-                <InfoField label="Arsak" value={item.årsak} />
+                <InfoField label="Årsak" value={item.årsak} />
               </div>
             </div>
           ))}
