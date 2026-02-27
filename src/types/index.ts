@@ -4,12 +4,20 @@ export type Pasient = {
   alder: number;
   diagnose: string;
   ytelse: string;
+  ankomstDag?: number | null;
+  avreiseDag?: number | null;
+  ankomstTid?: string | null;
+  avreiseTid?: string | null;
+  preferanser?: Record<string, unknown>;
+  ekstraBehov?: BehovTemplate[];
 };
 
 export type Behandler = {
   id: number;
+  ansattnr?: string;
   navn: string;
   spesialisering: string;
+  spesialiseringer?: string[];
 };
 
 export type Avtale = {
@@ -42,6 +50,7 @@ export type OptimeringResultat = {
 };
 
 export type BehovTemplate = {
+  id?: number;
   type: string;
   varighet: number;
   antall: number;
@@ -56,11 +65,13 @@ export type GruppePasient = {
 };
 
 export type GruppeAktivitetPlan = {
+  id?: number;
   dag: number;
   dagNavn: string;
   startTid: string;
   sluttTid: string;
   aktivitet: string;
+  behandlerId?: number | null;
 };
 
 export type Gruppe = {
