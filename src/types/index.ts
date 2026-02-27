@@ -43,6 +43,7 @@ export type OptimeringResultat = {
   status: string;
   planlagt: number;
   ikkePlanlagt: number;
+  gruppeDroppet: number;
   totalt: number;
   objektverdi: number;
   losningstid: number;
