@@ -184,7 +184,7 @@ function KlargjorFaseCard({ status, data }: { status: "completed" | "active" | "
   const meldinger = useMemo(() => {
     if (!data) return ["Laster inn pasienter, behandlere og grupper..."];
     return [
-      `Fant ${data.pasienter} pasienter fordelt pa ${data.grupper} gruppe${data.grupper !== 1 ? "r" : ""}`,
+      `Fant ${data.pasienter} pasienter fordelt på ${data.grupper} gruppe${data.grupper !== 1 ? "r" : ""}`,
       `${data.behov} individuelle behandlingstimer skal planlegges`,
       `${data.behandlere} behandlere tilgjengelig denne uka`,
     ];
@@ -193,7 +193,7 @@ function KlargjorFaseCard({ status, data }: { status: "completed" | "active" | "
   const { message, visible } = useRotatingMessage(meldinger, status === "active");
 
   return (
-    <PhaseCardShell label="Klargjoring" status={status}>
+    <PhaseCardShell label="Klargjøring" status={status}>
       {status === "active" && <RotatingText message={message} visible={visible} />}
       {status === "completed" && data && (
         <p className="text-xs text-zinc-500 dark:text-zinc-500">
@@ -211,7 +211,7 @@ function ModellbyggFaseCard({ status, data }: { status: "completed" | "active" |
       `Oppretter ${data.variabler.toLocaleString("no")} variabler for mulige timeplasseringer`,
       `Legger til ${data.constraints.toLocaleString("no")} regler og begrensninger`,
       "Matcher behov med kvalifiserte behandlere...",
-      "Sikrer at ingen har to aktiviteter pa samme tid...",
+      "Sikrer at ingen har to aktiviteter på samme tid...",
       "Reserverer lunsj fra 11:30 til 12:00 for alle...",
     ];
   }, [data]);
@@ -234,23 +234,23 @@ function SolvingFaseCard({ status, solution }: { status: "completed" | "active" 
   const meldinger = useMemo(() => {
     const base = [
       "Prioriterer individuelle timer over gruppeaktiviteter...",
-      "Forsoker a gi pasienten samme behandler gjennom uka...",
+      "Forsøker å gi pasienten samme behandler gjennom uka...",
       "Legger inn tid til hvile mellom behandlingene...",
       "Sprer timene jevnt utover ukedagene...",
     ];
     if (solution) {
       return [
-        `Beste losning: ${solution.scheduled} av ${solution.total} timer planlagt`,
+        `Beste løsning: ${solution.scheduled} av ${solution.total} timer planlagt`,
         ...base,
       ];
     }
-    return ["Soker etter en god losning...", ...base];
+    return ["Søker etter en god løsning...", ...base];
   }, [solution]);
 
   const { message, visible } = useRotatingMessage(meldinger, status === "active");
 
   return (
-    <PhaseCardShell label="Finner beste losning" status={status}>
+    <PhaseCardShell label="Finner beste løsning" status={status}>
       {status === "active" && (
         <>
           {solution && (
@@ -271,14 +271,14 @@ function SolvingFaseCard({ status, solution }: { status: "completed" | "active" 
           <RotatingText message={message} visible={visible} />
           {solution && (
             <p className="mt-1 text-[11px] tabular-nums text-zinc-400 dark:text-zinc-600">
-              Losning #{solution.solutionCount} &middot; {solution.elapsed.toFixed(1)}s brukt
+              Løsning #{solution.solutionCount} &middot; {solution.elapsed.toFixed(1)}s brukt
             </p>
           )}
         </>
       )}
       {status === "completed" && solution && (
         <p className="text-xs text-zinc-500 dark:text-zinc-500">
-          {solution.scheduled} av {solution.total} timer planlagt pa {solution.elapsed.toFixed(1)}s
+          {solution.scheduled} av {solution.total} timer planlagt på {solution.elapsed.toFixed(1)}s
         </p>
       )}
     </PhaseCardShell>

@@ -84,7 +84,7 @@ export function OptimeringStep() {
               : "bg-blue-600 hover:bg-blue-700"
           }`}
         >
-          {isOptimering ? "Optimerer..." : status?.harResultat ? "Kjor optimering pa nytt" : "Kjor optimering"}
+          {isOptimering ? "Optimerer..." : status?.harResultat ? "Kjør optimering på nytt" : "Kjør optimering"}
         </button>
       </div>
 
@@ -108,7 +108,7 @@ export function OptimeringStep() {
             </p>
           )}
           <p className="mt-2 text-xs text-green-600 dark:text-green-500">
-            Losningstid: {optimeringResultat.losningstid}s | Ga videre for a se resultatene
+            Løsningstid: {optimeringResultat.løsningstid}s | Gå videre for å se resultatene
           </p>
         </div>
       )}
