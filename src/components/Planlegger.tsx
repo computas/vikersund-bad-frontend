@@ -7,6 +7,7 @@ import { InputdataStep } from "./InputdataStep";
 import { GruppeKalenderStep } from "./GruppeKalenderStep";
 import { OptimeringStep } from "./OptimeringStep";
 import { ResultaterStep } from "./ResultaterStep";
+import { getMondayOfWeek } from "./WeekCalendar";
 
 const STEPS = [
   { number: 1, label: "Inputdata" },
@@ -15,8 +16,22 @@ const STEPS = [
   { number: 4, label: "Resultater" },
 ];
 
+const MANEDER = [
+  "Januar", "Februar", "Mars", "April", "Mai", "Juni",
+  "Juli", "August", "September", "Oktober", "November", "Desember",
+];
+
+function getWeekNumber(date: Date): number {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+}
+
 export function Planlegger() {
   const [currentStep, setCurrentStep] = useState(0);
+  const [selectedMonday, setSelectedMonday] = useState(() => getMondayOfWeek(new Date()));
   const { status } = useOptimering();
 
   useEffect(() => {
@@ -33,12 +48,52 @@ export function Planlegger() {
     <div className="min-h-screen bg-zinc-50 p-8 dark:bg-zinc-900">
       <div className="mx-auto w-full max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl">
         {/* Header */}
-        <h1 className="mb-1 text-3xl font-bold text-zinc-900 dark:text-white">
-          Vikersund Bad
-        </h1>
-        <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
-          Timeplanlegging for rehabiliteringsopphold
-        </p>
+        <div className="mb-6 flex items-start justify-between">
+          <div>
+            <h1 className="mb-1 text-3xl font-bold text-zinc-900 dark:text-white">
+              Vikersund Bad
+            </h1>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              Timeplanlegging for rehabiliteringsopphold
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                const prev = new Date(selectedMonday);
+                prev.setDate(prev.getDate() - 7);
+                setSelectedMonday(prev);
+              }}
+              className="rounded-md border border-zinc-300 px-2 py-1 text-sm text-zinc-600 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-400 dark:hover:bg-zinc-700"
+            >
+              &larr;
+            </button>
+            <div className="text-center">
+              <span className="text-sm font-semibold text-zinc-900 dark:text-white">
+                Uke {getWeekNumber(selectedMonday)}
+              </span>
+              <span className="ml-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+                {MANEDER[selectedMonday.getMonth()]} {selectedMonday.getFullYear()}
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                const next = new Date(selectedMonday);
+                next.setDate(next.getDate() + 7);
+                setSelectedMonday(next);
+              }}
+              className="rounded-md border border-zinc-300 px-2 py-1 text-sm text-zinc-600 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-400 dark:hover:bg-zinc-700"
+            >
+              &rarr;
+            </button>
+            <button
+              onClick={() => setSelectedMonday(getMondayOfWeek(new Date()))}
+              className="ml-1 rounded-md bg-zinc-200 px-2 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600"
+            >
+              I dag
+            </button>
+          </div>
+        </div>
 
         {/* Tab navigation */}
         <StepIndicator
@@ -78,9 +133,9 @@ export function Planlegger() {
           </div>
 
           {currentStep === 0 && <InputdataStep />}
-          {currentStep === 1 && <GruppeKalenderStep />}
-          {currentStep === 2 && <OptimeringStep />}
-          {currentStep === 3 && <ResultaterStep />}
+          {currentStep === 1 && <GruppeKalenderStep selectedMonday={selectedMonday} onWeekChange={setSelectedMonday} />}
+          {currentStep === 2 && <OptimeringStep selectedMonday={selectedMonday} />}
+          {currentStep === 3 && <ResultaterStep selectedMonday={selectedMonday} onWeekChange={setSelectedMonday} />}
         </div>
       </div>
     </div>

@@ -41,7 +41,7 @@ export function useOptimering() {
     queryFn: fetchOptimeringStatus,
   });
 
-  const startOptimering = useCallback(async () => {
+  const startOptimering = useCallback(async (opts?: { startDate?: string }) => {
     if (isStreaming) return;
 
     setEvents([]);
@@ -53,7 +53,10 @@ export function useOptimering() {
     abortRef.current = abort;
 
     try {
-      const response = await fetch(`${API_URL}/optimer/stream`, {
+      const url = opts?.startDate
+        ? `${API_URL}/optimer/stream?start_date=${opts.startDate}`
+        : `${API_URL}/optimer/stream`;
+      const response = await fetch(url, {
         method: "POST",
         signal: abort.signal,
       });

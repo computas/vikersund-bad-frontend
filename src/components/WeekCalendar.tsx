@@ -27,6 +27,7 @@ function generateTimeSlots(): string[] {
 }
 
 const TIMER = generateTimeSlots();
+const LUNCH_SLOTS = new Set(["11:30", "11:45"]);
 const UKEDAGER = ["Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag"];
 const MANEDER = [
   "Januar", "Februar", "Mars", "April", "Mai", "Juni",
@@ -253,17 +254,23 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
           {/* Time slots */}
           {TIMER.map((time) => {
             const isFullHour = time.endsWith(":00");
+            const isLunch = LUNCH_SLOTS.has(time);
+            const isLunchStart = time === "11:30";
             return (
               <div
                 key={time}
-                className={`grid grid-cols-[60px_repeat(5,1fr)] ${
+                className={`grid grid-cols-[60px_repeat(5,1fr)] border-b border-zinc-100 dark:border-zinc-800 ${
                   isFullHour
-                    ? "border-b border-zinc-200 dark:border-zinc-700"
-                    : "border-b border-zinc-100 dark:border-zinc-800"
+                    ? "border-t border-t-zinc-300 dark:border-t-zinc-600"
+                    : ""
                 }`}
               >
-                <div className="p-1 text-xs text-zinc-500">
-                  {isFullHour ? time : ""}
+                <div className="relative p-1 text-xs text-zinc-500">
+                  {isFullHour && (
+                    <span className="absolute -top-[9px] right-1 bg-white leading-none dark:bg-zinc-900">
+                      {time}
+                    </span>
+                  )}
                 </div>
                 {ukedager.map((dag) => {
                   const slotInfo = getAvtaleForSlot(avtaler, dag.dato, time);
@@ -278,6 +285,18 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
                         slotInfo ? "" : "p-0.5"
                       }`}
                     >
+                      {!slotInfo && isLunch && (
+                        <div
+                          className={`flex h-full min-h-[25px] items-center justify-center ${isLunchStart ? "rounded-t" : "rounded-b"}`}
+                          style={{
+                            background: "repeating-linear-gradient(135deg, transparent, transparent 3px, rgba(161,161,170,0.15) 3px, rgba(161,161,170,0.15) 6px)",
+                          }}
+                        >
+                          {isLunchStart && (
+                            <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500">Lunsj</span>
+                          )}
+                        </div>
+                      )}
                       {slotInfo && color && (
                         <div
                           onClick={() => slotInfo.isStart && setSelectedAvtale(slotInfo.avtale)}

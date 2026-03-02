@@ -94,4 +94,5 @@ export type OptimeringStatus = {
   ikkePlanlagt: number | null;
   totalt: number | null;
   solverStatus: string | null;
+  gruppeDroppet: number | null;
 };
