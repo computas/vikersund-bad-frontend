@@ -8,7 +8,12 @@ import { useOptimering } from "@/hooks/useOptimering";
 
 type ResultatView = "pasient" | "behandler" | "ikke-planlagt";
 
-export function ResultaterStep() {
+type ResultaterStepProps = {
+  selectedMonday: Date;
+  onWeekChange: (monday: Date) => void;
+};
+
+export function ResultaterStep({ selectedMonday, onWeekChange }: ResultaterStepProps) {
   const [view, setView] = useState<ResultatView>("pasient");
   const { status } = useOptimering();
 
@@ -45,8 +50,8 @@ export function ResultaterStep() {
       </div>
 
       {/* Content */}
-      {view === "pasient" && <PasientTab />}
-      {view === "behandler" && <BehandlerTab />}
+      {view === "pasient" && <PasientTab selectedMonday={selectedMonday} onWeekChange={onWeekChange} />}
+      {view === "behandler" && <BehandlerTab selectedMonday={selectedMonday} onWeekChange={onWeekChange} />}
       {view === "ikke-planlagt" && <IkkePlanlagtTab />}
     </div>
   );

@@ -3,14 +3,18 @@
 import { useState, useEffect } from "react";
 import { useAvtaler } from "@/hooks";
 import { InfoField } from "./InfoField";
-import { WeekCalendar, getMondayOfWeek, formatDateLocal } from "./WeekCalendar";
+import { WeekCalendar, formatDateLocal } from "./WeekCalendar";
 import { usePasienter } from "@/hooks/usePasienter";
 import { useBehandlere } from "@/hooks/useBehandlere";
 
-export function PasientTab() {
+type PasientTabProps = {
+  selectedMonday: Date;
+  onWeekChange: (monday: Date) => void;
+};
+
+export function PasientTab({ selectedMonday, onWeekChange }: PasientTabProps) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [currentMonday, setCurrentMonday] = useState(() => getMondayOfWeek(new Date()));
-  const startDato = formatDateLocal(currentMonday);
+  const startDato = formatDateLocal(selectedMonday);
   const {
     data: avtaler = [],
     isLoading,
@@ -26,7 +30,25 @@ export function PasientTab() {
   }, [selectedId, pasienter]);
 
   const selected = pasienter.find((p) => p.id === selectedId);
-  const pasientAvtaler = avtaler.filter((a) => a.pasientId === selectedId);
+  const pasientAvtaler = avtaler.filter((a) => {
+    if (a.pasientId !== selectedId) return false;
+    if (a.type !== "gruppe" || !selected) return true;
+
+    // Filter out group activities the patient can't attend
+    const dayIndex = (new Date(a.dato).getDay() + 6) % 7; // 0=Mon
+
+    if (selected.ankomstDag != null && dayIndex < selected.ankomstDag) return false;
+    if (selected.avreiseDag != null && dayIndex > selected.avreiseDag) return false;
+
+    if (selected.ankomstDag != null && dayIndex === selected.ankomstDag && selected.ankomstTid) {
+      if (a.sluttTid <= selected.ankomstTid) return false;
+    }
+    if (selected.avreiseDag != null && dayIndex === selected.avreiseDag && selected.avreiseTid) {
+      if (a.startTid >= selected.avreiseTid) return false;
+    }
+
+    return true;
+  });
 
   return (
     <div>
@@ -96,8 +118,8 @@ export function PasientTab() {
               avtaler={pasientAvtaler}
               viewMode="pasient"
               behandlere={behandlere}
-              currentMonday={currentMonday}
-              onWeekChange={setCurrentMonday}
+              currentMonday={selectedMonday}
+              onWeekChange={onWeekChange}
             />
           )}
         </div>

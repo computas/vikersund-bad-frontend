@@ -3,17 +3,21 @@
 import { useState } from "react";
 import { useGrupper, usePasienter, useBehandlere } from "@/hooks";
 import { useAvtaler } from "@/hooks";
-import { WeekCalendar, getMondayOfWeek, formatDateLocal } from "./WeekCalendar";
+import { WeekCalendar, formatDateLocal } from "./WeekCalendar";
 
-export function GruppeKalenderStep() {
+type GruppeKalenderStepProps = {
+  selectedMonday: Date;
+  onWeekChange: (monday: Date) => void;
+};
+
+export function GruppeKalenderStep({ selectedMonday, onWeekChange }: GruppeKalenderStepProps) {
   const { data: grupper = [] } = useGrupper();
   const { data: pasienter = [] } = usePasienter();
   const { data: behandlere = [] } = useBehandlere();
 
   const [selectedGruppeId, setSelectedGruppeId] = useState<string>("YTELSE_AO");
-  const [currentMonday, setCurrentMonday] = useState(() => getMondayOfWeek(new Date()));
 
-  const startDato = formatDateLocal(currentMonday);
+  const startDato = formatDateLocal(selectedMonday);
   const { data: avtaler = [] } = useAvtaler({ startDato });
 
   const selectedGruppe = grupper.find((g) => g.id === selectedGruppeId);
@@ -60,8 +64,8 @@ export function GruppeKalenderStep() {
         viewMode="pasient"
         pasienter={pasienter}
         behandlere={behandlere}
-        currentMonday={currentMonday}
-        onWeekChange={setCurrentMonday}
+        currentMonday={selectedMonday}
+        onWeekChange={onWeekChange}
         hideNavigation
       />
     </div>

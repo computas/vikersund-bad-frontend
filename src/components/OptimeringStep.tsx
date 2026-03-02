@@ -4,8 +4,13 @@ import { useState, useEffect } from "react";
 import { useOptimering } from "@/hooks/useOptimering";
 import { usePasienter, useBehandlere, useGrupper } from "@/hooks";
 import { SolverProgress } from "./SolverProgress";
+import { formatDateLocal } from "./WeekCalendar";
 
-export function OptimeringStep() {
+type OptimeringStepProps = {
+  selectedMonday: Date;
+};
+
+export function OptimeringStep({ selectedMonday }: OptimeringStepProps) {
   const {
     status,
     runOptimering,
@@ -76,7 +81,7 @@ export function OptimeringStep() {
           </button>
         )}
         <button
-          onClick={() => runOptimering()}
+          onClick={() => runOptimering({ startDate: formatDateLocal(selectedMonday) })}
           disabled={isOptimering || isResetting}
           className={`rounded-lg px-8 py-3 text-lg font-semibold text-white transition-colors ${
             isOptimering || isResetting
