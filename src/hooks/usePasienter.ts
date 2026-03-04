@@ -25,6 +25,7 @@ export function useCreatePasient() {
       alder: number;
       diagnose: string;
       gruppe_id: string;
+      ytelse_id?: string | null;
       ankomst_dag?: number | null;
       avreise_dag?: number | null;
       ankomst_tid?: string | null;
@@ -57,6 +58,7 @@ export function useUpdatePasient() {
       alder?: number;
       diagnose?: string;
       gruppe_id?: string;
+      ytelse_id?: string | null;
       ankomst_dag?: number | null;
       avreise_dag?: number | null;
       ankomst_tid?: string | null;

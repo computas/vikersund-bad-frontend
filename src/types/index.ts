@@ -4,6 +4,7 @@ export type Pasient = {
   alder: number;
   diagnose: string;
   ytelse: string;
+  ytelseId?: string | null;  // Overrider ytelse for rangering (f.eks. "YTELSE_A" vs "YTELSE_O")
   ankomstDag?: number | null;
   avreiseDag?: number | null;
   ankomstTid?: string | null;

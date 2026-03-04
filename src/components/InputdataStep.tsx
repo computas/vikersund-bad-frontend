@@ -41,6 +41,15 @@ export function InputdataStep() {
   const gruppeMap = new Map(grupper.map((g) => [g.id, g]));
   const getGruppeNavn = (ytelse: string) => gruppeMap.get(ytelse)?.navn ?? ytelse;
 
+  // For rangering-badges: YTELSE_A og YTELSE_O er ikke grupper, men ytelse-IDer
+  const getYtelseLabel = (ytelseId: string) => {
+    const gruppe = gruppeMap.get(ytelseId);
+    if (gruppe) return gruppe.navn;
+    // YTELSE_A → "Ytelse A", YTELSE_O → "Ytelse O"
+    const match = ytelseId.match(/^YTELSE_(.+)$/);
+    return match ? `Ytelse ${match[1]}` : ytelseId;
+  };
+
   const getPasientEkstraBehov = (pasient: { id: number; ytelse: string }) => {
     const gruppe = gruppeMap.get(pasient.ytelse);
     if (!gruppe) return "\u2014";
@@ -104,6 +113,11 @@ export function InputdataStep() {
                   </td>
                   <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
                     {getGruppeNavn(p.ytelse)}
+                    {p.ytelseId && (
+                      <span className="ml-1.5 inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
+                        {p.ytelseId.replace("YTELSE_", "")}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
                     {p.ankomstDag != null || p.avreiseDag != null ? (
@@ -210,7 +224,7 @@ export function InputdataStep() {
                                     : "bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
                               }`}
                             >
-                              {r.rangering}. {getGruppeNavn(r.gruppe_id)}
+                              {r.rangering}. {getYtelseLabel(r.gruppe_id)}
                             </span>
                           ))}
                       </div>

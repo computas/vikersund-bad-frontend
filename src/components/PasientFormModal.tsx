@@ -39,6 +39,7 @@ export function PasientFormModal({
     alder: "",
     diagnose: "",
     gruppe_id: grupper[0]?.id ?? "",
+    ytelse_id: "",
     ankomst_dag: "",
     avreise_dag: "",
     ankomst_tid: "",
@@ -52,6 +53,7 @@ export function PasientFormModal({
           alder: pasient.alder?.toString() ?? "",
           diagnose: pasient.diagnose,
           gruppe_id: pasient.ytelse ?? grupper[0]?.id ?? "",
+          ytelse_id: pasient.ytelseId ?? "",
           ankomst_dag: pasient.ankomstDag?.toString() ?? "",
           avreise_dag: pasient.avreiseDag?.toString() ?? "",
           ankomst_tid: pasient.ankomstTid ?? "",
@@ -74,6 +76,7 @@ export function PasientFormModal({
       alder: Number(form.alder),
       diagnose: form.diagnose,
       gruppe_id: form.gruppe_id,
+      ytelse_id: form.ytelse_id || null,
       ankomst_dag: form.ankomst_dag ? Number(form.ankomst_dag) : null,
       avreise_dag: form.avreise_dag ? Number(form.avreise_dag) : null,
       ankomst_tid: form.ankomst_tid || null,
@@ -102,6 +105,7 @@ export function PasientFormModal({
           alder: Number(form.alder),
           diagnose: form.diagnose,
           gruppe_id: form.gruppe_id,
+          ytelse_id: form.ytelse_id || null,
           ankomst_dag: form.ankomst_dag ? Number(form.ankomst_dag) : null,
           avreise_dag: form.avreise_dag ? Number(form.avreise_dag) : null,
           ankomst_tid: form.ankomst_tid || null,
@@ -187,13 +191,13 @@ export function PasientFormModal({
                 className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-700 dark:text-white focus:border-blue-500 focus:outline-none"
               />
             </div>
-            <div className="sm:col-span-2">
+            <div className={form.gruppe_id === "YTELSE_AO" ? "" : "sm:col-span-2"}>
               <label className="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">
                 Gruppe (ytelse)
               </label>
               <select
                 value={form.gruppe_id}
-                onChange={(e) => setForm({ ...form, gruppe_id: e.target.value })}
+                onChange={(e) => setForm({ ...form, gruppe_id: e.target.value, ytelse_id: "" })}
                 className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-700 dark:text-white focus:border-blue-500 focus:outline-none"
               >
                 {grupper.map((g) => (
@@ -201,6 +205,22 @@ export function PasientFormModal({
                 ))}
               </select>
             </div>
+            {form.gruppe_id === "YTELSE_AO" && (
+              <div>
+                <label className="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                  Ytelse (A/O)
+                </label>
+                <select
+                  value={form.ytelse_id}
+                  onChange={(e) => setForm({ ...form, ytelse_id: e.target.value })}
+                  className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-700 dark:text-white focus:border-blue-500 focus:outline-none"
+                >
+                  <option value="">Velg...</option>
+                  <option value="YTELSE_A">Ytelse A (Ortopedi)</option>
+                  <option value="YTELSE_O">Ytelse O (Annet)</option>
+                </select>
+              </div>
+            )}
             <div>
               <label className="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">
                 Ankomstdag
