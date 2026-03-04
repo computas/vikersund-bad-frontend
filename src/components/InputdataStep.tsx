@@ -8,6 +8,7 @@ import {
   useDeletePasient,
   useDeleteBehandler,
 } from "@/hooks";
+import { useBehandlereRangeringer } from "@/hooks/useBehandlere";
 import { PasientFormModal } from "./PasientFormModal";
 import { BehandlerFormModal } from "./BehandlerFormModal";
 import type { Behandler, Pasient } from "@/types";
@@ -27,6 +28,7 @@ export function InputdataStep() {
   const { data: pasienter = [] } = usePasienter();
   const { data: behandlere = [] } = useBehandlere();
   const { data: grupper = [] } = useGrupper();
+  const { data: rangeringerMap } = useBehandlereRangeringer(behandlere.map((b) => b.id));
 
   const [editingPasient, setEditingPasient] = useState<Pasient | null>(null);
   const [showAddPasient, setShowAddPasient] = useState(false);
@@ -172,6 +174,7 @@ export function InputdataStep() {
                 <th className="px-4 py-3">Ansattnr</th>
                 <th className="px-4 py-3">Navn</th>
                 <th className="px-4 py-3">Spesialisering</th>
+                <th className="px-4 py-3">Rangering</th>
                 <th className="px-4 py-3 w-24"></th>
               </tr>
             </thead>
@@ -190,6 +193,28 @@ export function InputdataStep() {
                   </td>
                   <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
                     {b.spesialisering}
+                  </td>
+                  <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
+                    {rangeringerMap?.get(b.id)?.length ? (
+                      <div className="flex flex-wrap gap-1">
+                        {[...(rangeringerMap.get(b.id) ?? [])]
+                          .sort((a, b) => a.rangering - b.rangering)
+                          .map((r) => (
+                            <span
+                              key={r.gruppe_id}
+                              className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${
+                                r.rangering === 1
+                                  ? "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300"
+                                  : r.rangering === 2
+                                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300"
+                                    : "bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
+                              }`}
+                            >
+                              {r.rangering}. {getGruppeNavn(r.gruppe_id)}
+                            </span>
+                          ))}
+                      </div>
+                    ) : "\u2014"}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2 opacity-0 transition-opacity [tr:hover_&]:opacity-100">
