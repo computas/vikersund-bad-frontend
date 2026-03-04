@@ -86,45 +86,6 @@ function CheckIcon({ className }: { className?: string }) {
 }
 
 const PHASE_SEGMENTS: Phase[] = ["klargjoring", "modellbygging", "solving"];
-
-function ProgressBar({ currentPhase, completedAll, elapsed }: { currentPhase: Phase; completedAll: boolean; elapsed: number }) {
-  return (
-    <div className="mb-5 flex gap-1">
-      {PHASE_SEGMENTS.map((seg) => {
-        const segIdx = PHASE_SEGMENTS.indexOf(seg);
-        const curIdx = PHASE_SEGMENTS.indexOf(currentPhase);
-
-        let fillPercent: number;
-        if (completedAll) {
-          fillPercent = 100;
-        } else if (curIdx < 0) {
-          fillPercent = 0;
-        } else if (segIdx < curIdx) {
-          fillPercent = 100;
-        } else if (segIdx > curIdx) {
-          fillPercent = 0;
-        } else if (seg === "solving") {
-          fillPercent = Math.min((elapsed / 30) * 100, 95);
-        } else {
-          fillPercent = 50;
-        }
-
-        return (
-          <div
-            key={seg}
-            className="h-1.5 flex-1 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700"
-          >
-            <div
-              className="h-full rounded-full bg-blue-500 transition-all duration-700 ease-out"
-              style={{ width: `${fillPercent}%` }}
-            />
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 function RotatingText({ message, visible }: { message: string; visible: boolean }) {
   return (
     <p
@@ -323,11 +284,6 @@ export function SolverProgress({
 
   return (
     <div className="mt-6 w-full max-w-lg">
-      <ProgressBar
-        currentPhase={phaseData.phase}
-        completedAll={completedAll}
-        elapsed={phaseData.latestSolution?.elapsed ?? 0}
-      />
       <div className="space-y-1">
         <KlargjorFaseCard status={phaseStatus("klargjoring")} data={phaseData.klargjoring} />
         <ModellbyggFaseCard status={phaseStatus("modellbygging")} data={phaseData.modellbygging} />
