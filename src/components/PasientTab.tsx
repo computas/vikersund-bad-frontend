@@ -5,7 +5,7 @@ import { useAvtaler } from "@/hooks";
 import { InfoField } from "./InfoField";
 import { WeekCalendar, formatDateLocal } from "./WeekCalendar";
 import { usePasienter } from "@/hooks/usePasienter";
-import { useBehandlere } from "@/hooks/useBehandlere";
+import { useBehandlere, useBehandlereRangeringer } from "@/hooks/useBehandlere";
 
 type PasientTabProps = {
   selectedMonday: Date;
@@ -22,6 +22,7 @@ export function PasientTab({ selectedMonday, onWeekChange }: PasientTabProps) {
   } = useAvtaler({ startDato });
   const { data: pasienter = [] } = usePasienter();
   const { data: behandlere = [] } = useBehandlere();
+  const { data: rangeringerMap } = useBehandlereRangeringer(behandlere.map((b) => b.id));
 
   useEffect(() => {
     if (selectedId === null && pasienter.length > 0) {
@@ -120,6 +121,8 @@ export function PasientTab({ selectedMonday, onWeekChange }: PasientTabProps) {
               behandlere={behandlere}
               currentMonday={selectedMonday}
               onWeekChange={onWeekChange}
+              rangeringerMap={rangeringerMap}
+              ytelseKey={selected.ytelseId ?? selected.ytelse}
             />
           )}
         </div>

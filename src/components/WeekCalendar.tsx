@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Avtale, Pasient, Behandler } from "@/types";
+import { Avtale, Pasient, Behandler, BehandlerRangering } from "@/types";
 import { getAvtaleColor, getAvtaleCategory, getCategoryColor } from "@/lib/colors";
 import { AvtaleModal } from "./AvtaleModal";
 
@@ -13,6 +13,8 @@ type WeekCalendarProps = {
   currentMonday: Date;
   onWeekChange: (monday: Date) => void;
   hideNavigation?: boolean;
+  rangeringerMap?: Map<number, BehandlerRangering[]>;
+  ytelseKey?: string;
 };
 
 // Generer 15-minutters slots fra 09:00 til 16:00
@@ -112,8 +114,16 @@ function getAvtaleForSlot(
 }
 
 
-export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [], currentMonday, onWeekChange, hideNavigation = false }: WeekCalendarProps) {
+export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [], currentMonday, onWeekChange, hideNavigation = false, rangeringerMap, ytelseKey }: WeekCalendarProps) {
   const [selectedAvtale, setSelectedAvtale] = useState<Avtale | null>(null);
+
+  const getRangering = (behandlerId: number | null): number | null => {
+    if (!behandlerId || !rangeringerMap || !ytelseKey) return null;
+    const rangeringer = rangeringerMap.get(behandlerId);
+    if (!rangeringer) return null;
+    const match = rangeringer.find((r) => r.gruppe_id === ytelseKey);
+    return match?.rangering ?? null;
+  };
 
   const getPersonNavn = (avtale: Avtale): string | null => {
     if (viewMode === "pasient") {
@@ -322,9 +332,24 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
                                   {slotInfo.avtale.beskrivelse}
                                 </span>
                               </div>
-                              {getPersonNavn(slotInfo.avtale) && (
-                                <div className={`truncate ${color.textSecondary} ${color.textSecondaryDark}`}>
-                                  {getPersonNavn(slotInfo.avtale)}
+                              {getPersonNavn(slotInfo.avtale) && !(viewMode === "behandler" && slotInfo.avtale.type === "gruppe") && (
+                                <div className={`flex items-center gap-1 ${color.textSecondary} ${color.textSecondaryDark}`}>
+                                  <span className="truncate">{getPersonNavn(slotInfo.avtale)}</span>
+                                  {(() => {
+                                    const rang = getRangering(slotInfo.avtale.behandlerId);
+                                    if (rang === null) return null;
+                                    const badgeColor =
+                                      rang === 1
+                                        ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
+                                        : rang === 2
+                                          ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300"
+                                          : "bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300";
+                                    return (
+                                      <span className={`inline-flex items-center justify-center rounded px-1 text-[9px] font-bold leading-tight ${badgeColor}`}>
+                                        {rang}
+                                      </span>
+                                    );
+                                  })()}
                                 </div>
                               )}
                               <div className={`truncate ${color.textSecondary} ${color.textSecondaryDark}`}>
