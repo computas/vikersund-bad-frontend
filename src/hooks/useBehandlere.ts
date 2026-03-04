@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Behandler } from "@/types";
+import { Behandler, BehandlerRangering } from "@/types";
 import { API_URL } from "@/lib/api";
 
 async function fetchBehandlere(): Promise<Behandler[]> {
@@ -77,5 +77,23 @@ export function useDeleteBehandler() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["behandlere"] });
     },
+  });
+}
+
+export function useBehandlereRangeringer(behandlerIds: number[]) {
+  return useQuery({
+    queryKey: ["behandlereRangeringer", behandlerIds],
+    queryFn: async () => {
+      const results = await Promise.all(
+        behandlerIds.map(async (id) => {
+          const res = await fetch(`${API_URL}/behandlere/${id}/rangering`);
+          if (!res.ok) return { behandlerId: id, rangeringer: [] as BehandlerRangering[] };
+          const rangeringer: BehandlerRangering[] = await res.json();
+          return { behandlerId: id, rangeringer };
+        })
+      );
+      return new Map(results.map((r) => [r.behandlerId, r.rangeringer]));
+    },
+    enabled: behandlerIds.length > 0,
   });
 }

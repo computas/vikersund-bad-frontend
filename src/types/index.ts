@@ -86,6 +86,11 @@ export type Gruppe = {
   individuelleBehovPerPasient: BehovTemplate[];
 };
 
+export type BehandlerRangering = {
+  gruppe_id: string;
+  rangering: number;
+};
+
 export type OptimeringStatus = {
   kjorer: boolean;
   harResultat: boolean;
