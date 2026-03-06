@@ -1,18 +1,19 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useCreateBehandler, useUpdateBehandler } from "@/hooks";
+import { useCreateBehandler, useUpdateBehandler, useGrupper } from "@/hooks";
+import {
+  useBehandlerRangering,
+  useUpdateBehandlerRangeringer,
+} from "@/hooks/useBehandlere";
 import type { Behandler } from "@/types";
 
 const SPESIALISERINGER = [
   "FYSIO",
-  "LEGE",
   "SYKEPLEIER",
-  "ERGOTERAPI",
-  "LOGOPED",
   "PSYKOLOG",
-  "ERNÆRING",
   "KONTAKTPERSON",
+  "SYNSPEDAGOG",
 ];
 
 export function BehandlerFormModal({
@@ -25,7 +26,13 @@ export function BehandlerFormModal({
   const isEditing = behandler !== null;
   const createBehandler = useCreateBehandler();
   const updateBehandler = useUpdateBehandler();
+  const updateRangeringer = useUpdateBehandlerRangeringer();
   const firstFieldRef = useRef<HTMLInputElement>(null);
+
+  const { data: grupper = [] } = useGrupper();
+  const { data: rangeringerData } = useBehandlerRangering(
+    isEditing ? behandler.id : null,
+  );
 
   const defaultForm = {
     ansattnr: "",
@@ -40,10 +47,22 @@ export function BehandlerFormModal({
           navn: behandler.navn,
           spesialiseringer:
             behandler.spesialiseringer ??
-            (behandler.spesialisering ? behandler.spesialisering.split(", ") : []),
+            (behandler.spesialisering
+              ? behandler.spesialisering.split(", ")
+              : []),
         }
-      : defaultForm
+      : defaultForm,
   );
+
+  const [rangeringOverrides, setRangeringOverrides] = useState<
+    Record<string, string>
+  >({});
+
+  const getRangeringValue = (gruppeId: string) => {
+    if (gruppeId in rangeringOverrides) return rangeringOverrides[gruppeId];
+    const saved = rangeringerData?.find((r) => r.gruppe_id === gruppeId);
+    return saved ? String(saved.rangering) : "";
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -62,36 +81,66 @@ export function BehandlerFormModal({
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const buildRangeringPayload = () =>
+    grupper
+      .map((g) => ({ gruppeId: g.id, value: getRangeringValue(g.id) }))
+      .filter(({ value }) => value !== "")
+      .map(({ gruppeId, value }) => ({ gruppeId, rangering: Number(value) }));
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (form.spesialiseringer.length === 0) return;
 
-    if (isEditing) {
-      updateBehandler.mutate(
-        {
-          id: behandler.id,
-          ansattnr: form.ansattnr,
-          navn: form.navn,
-          spesialiseringer: form.spesialiseringer,
-        },
-        { onSuccess: onClose }
-      );
-    } else {
-      createBehandler.mutate(form, { onSuccess: onClose });
+    try {
+      const rangeringPayload = buildRangeringPayload();
+      if (isEditing) {
+        await Promise.all([
+          updateBehandler.mutateAsync({ id: behandler.id, ...form }),
+          rangeringPayload.length > 0
+            ? updateRangeringer.mutateAsync({
+                behandlerId: behandler.id,
+                rangeringer: rangeringPayload,
+              })
+            : Promise.resolve(),
+        ]);
+      } else {
+        const nyBehandler = await createBehandler.mutateAsync(form);
+        if (rangeringPayload.length > 0) {
+          await updateRangeringer.mutateAsync({
+            behandlerId: nyBehandler.id,
+            rangeringer: rangeringPayload,
+          });
+        }
+      }
+      onClose();
+    } catch {
+      // feil vises via isPending/isError på mutasjonene
     }
   };
 
-  const handleSaveAndAddNew = () => {
+  const handleSaveAndAddNew = async () => {
     if (form.spesialiseringer.length === 0) return;
-    createBehandler.mutate(form, {
-      onSuccess: () => {
-        setForm(defaultForm);
-        firstFieldRef.current?.focus();
-      },
-    });
+    try {
+      const rangeringPayload = buildRangeringPayload();
+      const nyBehandler = await createBehandler.mutateAsync(form);
+      if (rangeringPayload.length > 0) {
+        await updateRangeringer.mutateAsync({
+          behandlerId: nyBehandler.id,
+          rangeringer: rangeringPayload,
+        });
+      }
+      setForm(defaultForm);
+      setRangeringOverrides({});
+      firstFieldRef.current?.focus();
+    } catch {
+      // feil vises via isPending/isError på mutasjonene
+    }
   };
 
-  const isPending = createBehandler.isPending || updateBehandler.isPending;
+  const isPending =
+    createBehandler.isPending ||
+    updateBehandler.isPending ||
+    updateRangeringer.isPending;
 
   return (
     <div
@@ -110,8 +159,18 @@ export function BehandlerFormModal({
             onClick={onClose}
             className="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
           >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -163,9 +222,49 @@ export function BehandlerFormModal({
               ))}
             </div>
             {form.spesialiseringer.length === 0 && (
-              <p className="mt-1 text-xs text-red-500">Velg minst en spesialisering</p>
+              <p className="mt-1 text-xs text-red-500">
+                Velg minst en spesialisering
+              </p>
             )}
           </div>
+
+          {grupper.length > 0 && (
+            <div className="mt-4">
+              <label className="mb-1.5 block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                Rangering per ytelse
+              </label>
+              <div className="space-y-1.5">
+                {grupper.map((g) => (
+                  <div
+                    key={g.id}
+                    className="flex items-center gap-3"
+                  >
+                    <span className="flex-1 text-sm text-zinc-700 dark:text-zinc-300">
+                      {g.navn}
+                    </span>
+                    <input
+                      type="number"
+                      min="1"
+                      max="6"
+                      placeholder="—"
+                      value={getRangeringValue(g.id)}
+                      onChange={(e) =>
+                        setRangeringOverrides((prev) => ({
+                          ...prev,
+                          [g.id]: e.target.value,
+                        }))
+                      }
+                      className="w-16 rounded-md border border-zinc-300 px-2 py-1 text-center text-sm dark:border-zinc-600 dark:bg-zinc-700 dark:text-white focus:border-blue-500 focus:outline-none"
+                    />
+                  </div>
+                ))}
+              </div>
+              <p className="mt-1.5 text-xs text-zinc-400 dark:text-zinc-500">
+                1 = best, rangeringen går fra 1 til 6. La stå tom for ingen
+                rangering.
+              </p>
+            </div>
+          )}
 
           <div className="mt-6 flex justify-end gap-2">
             <button
@@ -178,7 +277,12 @@ export function BehandlerFormModal({
             {!isEditing && (
               <button
                 type="button"
-                disabled={isPending || form.spesialiseringer.length === 0 || !form.ansattnr || !form.navn}
+                disabled={
+                  isPending ||
+                  form.spesialiseringer.length === 0 ||
+                  !form.ansattnr ||
+                  !form.navn
+                }
                 onClick={handleSaveAndAddNew}
                 className="rounded-md border border-blue-600 px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 disabled:opacity-50 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-900/20"
               >
@@ -190,7 +294,11 @@ export function BehandlerFormModal({
               disabled={isPending || form.spesialiseringer.length === 0}
               className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
             >
-              {isPending ? "Lagrer..." : isEditing ? "Lagre endringer" : "Lagre"}
+              {isPending
+                ? "Lagrer..."
+                : isEditing
+                  ? "Lagre endringer"
+                  : "Lagre"}
             </button>
           </div>
         </form>

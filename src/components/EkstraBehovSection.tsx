@@ -1,17 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { useEkstraBehov, useCreateEkstraBehov, useDeleteEkstraBehov } from "@/hooks";
+import {
+  useEkstraBehov,
+  useCreateEkstraBehov,
+  useDeleteEkstraBehov,
+} from "@/hooks";
 
 const SPESIALISERINGER = [
   "FYSIO",
-  "LEGE",
   "SYKEPLEIER",
-  "ERGOTERAPI",
-  "LOGOPED",
   "PSYKOLOG",
-  "ERNÆRING",
   "KONTAKTPERSON",
+  "SYNSPEDAGOG",
 ];
 
 export type LocalBehov = { type: string; varighet: number; antall: number };
@@ -29,7 +30,11 @@ export function EkstraBehovSection({
   const createEkstraBehov = useCreateEkstraBehov();
   const deleteEkstraBehov = useDeleteEkstraBehov();
 
-  const [newBehov, setNewBehov] = useState({ type: "FYSIO", varighet: "30", antall: "1" });
+  const [newBehov, setNewBehov] = useState({
+    type: "FYSIO",
+    varighet: "30",
+    antall: "1",
+  });
 
   const displayBehov = pasientId !== null ? apiBehov : localBehov;
 
@@ -71,7 +76,9 @@ export function EkstraBehovSection({
         <ul className="mb-3 space-y-1">
           {displayBehov.map((b, idx) => (
             <li
-              key={pasientId !== null && "id" in b ? (b as { id: number }).id : idx}
+              key={
+                pasientId !== null && "id" in b ? (b as { id: number }).id : idx
+              }
               className="flex items-center justify-between rounded-md bg-zinc-50 px-3 py-1.5 text-sm dark:bg-zinc-700/50"
             >
               <span className="text-zinc-700 dark:text-zinc-300">
@@ -99,7 +106,12 @@ export function EkstraBehovSection({
             className="w-full rounded border border-zinc-300 px-2 py-1.5 text-xs dark:border-zinc-600 dark:bg-zinc-700 dark:text-white"
           >
             {SPESIALISERINGER.map((s) => (
-              <option key={s} value={s}>{s}</option>
+              <option
+                key={s}
+                value={s}
+              >
+                {s}
+              </option>
             ))}
           </select>
         </div>
@@ -109,11 +121,18 @@ export function EkstraBehovSection({
           </label>
           <select
             value={newBehov.varighet}
-            onChange={(e) => setNewBehov({ ...newBehov, varighet: e.target.value })}
+            onChange={(e) =>
+              setNewBehov({ ...newBehov, varighet: e.target.value })
+            }
             className="w-full rounded border border-zinc-300 px-2 py-1.5 text-xs dark:border-zinc-600 dark:bg-zinc-700 dark:text-white"
           >
             {[15, 30, 45, 60, 75, 90].map((m) => (
-              <option key={m} value={m}>{m} min</option>
+              <option
+                key={m}
+                value={m}
+              >
+                {m} min
+              </option>
             ))}
           </select>
         </div>
@@ -126,7 +145,9 @@ export function EkstraBehovSection({
             min={1}
             max={10}
             value={newBehov.antall}
-            onChange={(e) => setNewBehov({ ...newBehov, antall: e.target.value })}
+            onChange={(e) =>
+              setNewBehov({ ...newBehov, antall: e.target.value })
+            }
             className="w-full rounded border border-zinc-300 px-2 py-1.5 text-xs dark:border-zinc-600 dark:bg-zinc-700 dark:text-white"
           />
         </div>

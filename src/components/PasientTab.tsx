@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAvtaler } from "@/hooks";
 import { InfoField } from "./InfoField";
 import { WeekCalendar, formatDateLocal } from "./WeekCalendar";
 import { usePasienter } from "@/hooks/usePasienter";
 import { useBehandlere, useBehandlereRangeringer } from "@/hooks/useBehandlere";
+import { formatYtelseId } from "@/lib/colors";
 
 type PasientTabProps = {
   selectedMonday: Date;
@@ -24,15 +25,10 @@ export function PasientTab({ selectedMonday, onWeekChange }: PasientTabProps) {
   const { data: behandlere = [] } = useBehandlere();
   const { data: rangeringerMap } = useBehandlereRangeringer(behandlere.map((b) => b.id));
 
-  useEffect(() => {
-    if (selectedId === null && pasienter.length > 0) {
-      setSelectedId(pasienter[0].id);
-    }
-  }, [selectedId, pasienter]);
-
-  const selected = pasienter.find((p) => p.id === selectedId);
+  const activePasientId = selectedId ?? (pasienter.length > 0 ? pasienter[0].id : null);
+  const selected = pasienter.find((p) => p.id === activePasientId);
   const pasientAvtaler = avtaler.filter((a) => {
-    if (a.pasientId !== selectedId) return false;
+    if (a.pasientId !== activePasientId) return false;
     if (a.type !== "gruppe" || !selected) return true;
 
     // Filter out group activities the patient can't attend
@@ -57,7 +53,7 @@ export function PasientTab({ selectedMonday, onWeekChange }: PasientTabProps) {
         Velg pasient
       </label>
       <select
-        value={selectedId ?? ""}
+        value={activePasientId ?? ""}
         onChange={(e) =>
           setSelectedId(e.target.value ? Number(e.target.value) : null)
         }
@@ -69,7 +65,7 @@ export function PasientTab({ selectedMonday, onWeekChange }: PasientTabProps) {
             key={p.id}
             value={p.id}
           >
-            {p.navn} ({p.ytelse})
+            {p.navn} ({formatYtelseId(p.ytelse)})
           </option>
         ))}
       </select>

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useOptimering } from "@/hooks/useOptimering";
 import { usePasienter, useBehandlere, useGrupper } from "@/hooks";
 import { SolverProgress } from "./SolverProgress";
@@ -32,10 +31,7 @@ export function OptimeringStep({ selectedMonday }: OptimeringStepProps) {
     return sum + behovPerPasient * g.antallPasienter + ekstraBehov;
   }, 0);
 
-  const [hasRun, setHasRun] = useState(false);
-  useEffect(() => {
-    if (isOptimering) setHasRun(true);
-  }, [isOptimering]);
+  const hasRun = isOptimering || events.length > 0;
 
   return (
     <div className="flex flex-col items-center py-8">

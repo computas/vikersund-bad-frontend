@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useOptimering } from "@/hooks/useOptimering";
 import { StepIndicator } from "./StepIndicator";
 import { InputdataStep } from "./InputdataStep";
@@ -34,11 +34,7 @@ export function Planlegger() {
   const [selectedMonday, setSelectedMonday] = useState(() => getMondayOfWeek(new Date()));
   const { status } = useOptimering();
 
-  useEffect(() => {
-    if (currentStep === 3 && !status?.harResultat) {
-      setCurrentStep(2);
-    }
-  }, [currentStep, status?.harResultat]);
+  const activeStep = currentStep === 3 && !status?.harResultat ? 2 : currentStep;
 
   const isStepDisabled = (index: number) => {
     return index === 3 && !status?.harResultat;
@@ -98,7 +94,7 @@ export function Planlegger() {
         {/* Tab navigation */}
         <StepIndicator
           steps={STEPS}
-          currentStep={currentStep}
+          currentStep={activeStep}
           onStepClick={setCurrentStep}
           isStepDisabled={isStepDisabled}
         />
@@ -107,35 +103,35 @@ export function Planlegger() {
         <div className="rounded-lg bg-white p-6 shadow dark:bg-zinc-800">
           {/* Navigation arrows */}
           <div className="mb-4 flex items-center justify-between">
-            {currentStep > 0 ? (
+            {activeStep > 0 ? (
               <button
-                onClick={() => setCurrentStep(currentStep - 1)}
+                onClick={() => setCurrentStep(activeStep - 1)}
                 className="flex items-center gap-1.5 text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
-                {STEPS[currentStep - 1].label}
+                {STEPS[activeStep - 1].label}
               </button>
             ) : <span />}
-            {currentStep < STEPS.length - 1 ? (
+            {activeStep < STEPS.length - 1 ? (
               <button
-                onClick={() => !isStepDisabled(currentStep + 1) && setCurrentStep(currentStep + 1)}
-                disabled={isStepDisabled(currentStep + 1)}
+                onClick={() => !isStepDisabled(activeStep + 1) && setCurrentStep(activeStep + 1)}
+                disabled={isStepDisabled(activeStep + 1)}
                 className={`flex items-center gap-1.5 text-sm font-medium ${
-                  isStepDisabled(currentStep + 1)
+                  isStepDisabled(activeStep + 1)
                     ? "cursor-not-allowed text-zinc-300 dark:text-zinc-600"
                     : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
                 }`}
               >
-                {STEPS[currentStep + 1].label}
+                {STEPS[activeStep + 1].label}
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
               </button>
             ) : <span />}
           </div>
 
-          {currentStep === 0 && <InputdataStep />}
-          {currentStep === 1 && <GruppeKalenderStep selectedMonday={selectedMonday} onWeekChange={setSelectedMonday} />}
-          {currentStep === 2 && <OptimeringStep selectedMonday={selectedMonday} />}
-          {currentStep === 3 && <ResultaterStep selectedMonday={selectedMonday} onWeekChange={setSelectedMonday} />}
+          {activeStep === 0 && <InputdataStep />}
+          {activeStep === 1 && <GruppeKalenderStep selectedMonday={selectedMonday} onWeekChange={setSelectedMonday} />}
+          {activeStep === 2 && <OptimeringStep selectedMonday={selectedMonday} />}
+          {activeStep === 3 && <ResultaterStep selectedMonday={selectedMonday} onWeekChange={setSelectedMonday} />}
         </div>
       </div>
     </div>

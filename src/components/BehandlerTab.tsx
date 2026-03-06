@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAvtaler } from "@/hooks";
-import { useBehandlere } from "@/hooks/useBehandlere";
+import { useBehandlere, useBehandlerRangering } from "@/hooks/useBehandlere";
 import { usePasienter } from "@/hooks/usePasienter";
+import { useGrupper } from "@/hooks";
 import { InfoField } from "./InfoField";
 import { WeekCalendar, formatDateLocal } from "./WeekCalendar";
+import { formatYtelseId } from "@/lib/colors";
 
 type BehandlerTabProps = {
   selectedMonday: Date;
@@ -23,14 +25,11 @@ export function BehandlerTab({ selectedMonday, onWeekChange }: BehandlerTabProps
   const { data: behandlere = [] } = useBehandlere();
   const { data: pasienter = [] } = usePasienter();
 
-  useEffect(() => {
-    if (selectedId === null && behandlere.length > 0) {
-      setSelectedId(behandlere[0].id);
-    }
-  }, [selectedId, behandlere]);
-
-  const selected = behandlere.find((b) => b.id === selectedId);
-  const behandlerAvtaler = avtaler.filter((a) => a.behandlerId === selectedId);
+  const activeBehandlerId = selectedId ?? (behandlere.length > 0 ? behandlere[0].id : null);
+  const selected = behandlere.find((b) => b.id === activeBehandlerId);
+  const behandlerAvtaler = avtaler.filter((a) => a.behandlerId === activeBehandlerId);
+  const { data: grupper = [] } = useGrupper();
+  const { data: rangeringer = [] } = useBehandlerRangering(activeBehandlerId);
 
   return (
     <div>
@@ -38,7 +37,7 @@ export function BehandlerTab({ selectedMonday, onWeekChange }: BehandlerTabProps
         Velg behandler
       </label>
       <select
-        value={selectedId ?? ""}
+        value={activeBehandlerId ?? ""}
         onChange={(e) =>
           setSelectedId(e.target.value ? Number(e.target.value) : null)
         }
@@ -79,6 +78,34 @@ export function BehandlerTab({ selectedMonday, onWeekChange }: BehandlerTabProps
               label="Spesialisering"
               value={selected.spesialisering}
             />
+          </div>
+
+          <div className="text-sm">
+            <p className="mb-1.5 font-medium text-zinc-600 dark:text-zinc-400">Rangering per ytelse:</p>
+            {rangeringer.length === 0 ? (
+              <p className="text-xs text-zinc-400 dark:text-zinc-500">Ingen rangering</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {rangeringer
+                  .slice()
+                  .sort((a, b) => a.rangering - b.rangering)
+                  .map((r) => {
+                    const gruppe = grupper.find((g) => g.id === r.gruppe_id);
+                    const badgeColor =
+                      r.rangering === 1
+                        ? "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300"
+                        : r.rangering === 2
+                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300"
+                          : "bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300";
+                    return (
+                      <span key={r.gruppe_id} className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${badgeColor}`}>
+                        <span className="font-bold">{r.rangering}</span>
+                        <span>{gruppe?.navn ?? formatYtelseId(r.gruppe_id)}</span>
+                      </span>
+                    );
+                  })}
+              </div>
+            )}
           </div>
 
           {isLoading && (

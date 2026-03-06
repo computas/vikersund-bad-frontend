@@ -80,6 +80,45 @@ export function useDeleteBehandler() {
   });
 }
 
+export function useBehandlerRangering(behandlerId: number | null) {
+  return useQuery({
+    queryKey: ["behandlerRangering", behandlerId],
+    queryFn: async () => {
+      const res = await fetch(`${API_URL}/behandlere/${behandlerId}/rangering`);
+      if (!res.ok) return [] as BehandlerRangering[];
+      return res.json() as Promise<BehandlerRangering[]>;
+    },
+    enabled: behandlerId !== null,
+  });
+}
+
+export function useUpdateBehandlerRangeringer() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      behandlerId,
+      rangeringer,
+    }: {
+      behandlerId: number;
+      rangeringer: { gruppeId: string; rangering: number }[];
+    }) => {
+      await Promise.all(
+        rangeringer.map(({ gruppeId, rangering }) =>
+          fetch(`${API_URL}/behandlere/${behandlerId}/rangering/${gruppeId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ rangering }),
+          })
+        )
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["behandlerRangering"] });
+      queryClient.invalidateQueries({ queryKey: ["behandlereRangeringer"] });
+    },
+  });
+}
+
 export function useBehandlereRangeringer(behandlerIds: number[]) {
   return useQuery({
     queryKey: ["behandlereRangeringer", behandlerIds],

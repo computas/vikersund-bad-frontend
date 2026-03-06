@@ -70,15 +70,25 @@ const COLORS: Record<string, ColorScheme> = {
     dot: "bg-purple-500",
     label: "Avspenning",
   },
-  ernaering: {
-    bg: "bg-orange-100",
-    bgDark: "dark:bg-orange-900",
-    text: "text-orange-900",
-    textDark: "dark:text-orange-100",
-    textSecondary: "text-orange-700",
-    textSecondaryDark: "dark:text-orange-300",
-    dot: "bg-orange-500",
-    label: "Ernæring",
+  sykepleier: {
+    bg: "bg-cyan-100",
+    bgDark: "dark:bg-cyan-900",
+    text: "text-cyan-900",
+    textDark: "dark:text-cyan-100",
+    textSecondary: "text-cyan-700",
+    textSecondaryDark: "dark:text-cyan-300",
+    dot: "bg-cyan-500",
+    label: "Sykepleier",
+  },
+  synspedagog: {
+    bg: "bg-violet-100",
+    bgDark: "dark:bg-violet-900",
+    text: "text-violet-900",
+    textDark: "dark:text-violet-100",
+    textSecondary: "text-violet-700",
+    textSecondaryDark: "dark:text-violet-300",
+    dot: "bg-violet-500",
+    label: "Synspedagog",
   },
   mote: {
     bg: "bg-slate-200",
@@ -91,14 +101,24 @@ const COLORS: Record<string, ColorScheme> = {
     label: "Møte/Admin",
   },
   gruppe: {
-    bg: "bg-indigo-100",
-    bgDark: "dark:bg-indigo-900",
-    text: "text-indigo-900",
-    textDark: "dark:text-indigo-100",
-    textSecondary: "text-indigo-700",
-    textSecondaryDark: "dark:text-indigo-300",
-    dot: "bg-indigo-500",
+    bg: "bg-lime-100",
+    bgDark: "dark:bg-lime-900",
+    text: "text-lime-900",
+    textDark: "dark:text-lime-100",
+    textSecondary: "text-lime-700",
+    textSecondaryDark: "dark:text-lime-300",
+    dot: "bg-lime-500",
     label: "Gruppeaktivitet",
+  },
+  psykolog: {
+    bg: "bg-rose-100",
+    bgDark: "dark:bg-rose-900",
+    text: "text-rose-900",
+    textDark: "dark:text-rose-100",
+    textSecondary: "text-rose-700",
+    textSecondaryDark: "dark:text-rose-300",
+    dot: "bg-rose-500",
+    label: "Psykolog",
   },
 };
 
@@ -106,11 +126,39 @@ const KEYWORD_MAP: [string[], string][] = [
   [["fysioterapi"], "fysio"],
   [["kontaktperson"], "kontaktperson"],
   [["basseng"], "basseng"],
-  [["sterk", "sirkeltrening", "stoltrim", "aktiv ute", "rygg", "game on", "naturlig sterk", "håndtrening", "hofte"], "trening"],
-  [["fellesundervisning", "temasamling", "stress", "kognisjon", "langvarig"], "undervisning"],
+  [
+    [
+      "sterk",
+      "sirkeltrening",
+      "stoltrim",
+      "aktiv ute",
+      "rygg",
+      "game on",
+      "naturlig sterk",
+      "håndtrening",
+      "hofte",
+      "pilates",
+    ],
+    "trening",
+  ],
+  [
+    [
+      "fellesundervisning",
+      "temasamling",
+      "stress",
+      "kognisjon",
+      "langvarig",
+      "barn som pårørende",
+      "arbeid og helse",
+      "ernæring",
+    ],
+    "undervisning",
+  ],
   [["mediyoga", "hvile", "avspenning"], "avspenning"],
-  [["ernæring", "ernaering"], "ernaering"],
-  [["tverrfaglig", "arbeidsgruppe", "arbeid og helse"], "mote"],
+  [["arr kons", "sykepleier"], "sykepleier"],
+  [["optometrist", "optimetrist", "synspedagog"], "synspedagog"],
+  [["tverrfaglig", "arbeidsgruppe"], "mote"],
+  [["psykolog"], "psykolog"],
 ];
 
 export function getAvtaleColor(beskrivelse: string): ColorScheme {
@@ -138,3 +186,16 @@ export function getCategoryColor(category: string): ColorScheme {
 }
 
 export { COLORS };
+
+const YTELSE_OVERRIDES: Record<string, string> = {
+  YTELSE_AO: "Ytelse A+O",
+};
+
+// Konverterer f.eks. "YTELSE_B" → "Ytelse B"
+export function formatYtelseId(id: string): string {
+  if (id in YTELSE_OVERRIDES) return YTELSE_OVERRIDES[id];
+  return id
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
