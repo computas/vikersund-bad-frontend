@@ -56,11 +56,13 @@ function useRotatingMessage(
 ) {
   const [index, setIndex] = useState(0);
   const [visible, setVisible] = useState(true);
+  const [prevMeldinger, setPrevMeldinger] = useState(meldinger);
 
-  useEffect(() => {
+  if (prevMeldinger !== meldinger) {
+    setPrevMeldinger(meldinger);
     setIndex(0);
     setVisible(true);
-  }, [meldinger]);
+  }
 
   useEffect(() => {
     if (!active || meldinger.length <= 1) return;
@@ -254,21 +256,8 @@ export function SolverProgress({
   events: SolverEvent[];
 }) {
   const phaseData = derivePhaseData(events);
-  const [completedAll, setCompletedAll] = useState(false);
-  const [started, setStarted] = useState(false);
-
-  useEffect(() => {
-    if (isOptimering) {
-      setStarted(true);
-      setCompletedAll(false);
-    }
-  }, [isOptimering]);
-
-  useEffect(() => {
-    if (!isOptimering && started && phaseData.phase !== "idle") {
-      setCompletedAll(true);
-    }
-  }, [isOptimering, started, phaseData.phase]);
+  const started = isOptimering || events.length > 0;
+  const completedAll = !isOptimering && events.length > 0 && phaseData.phase !== "idle";
 
   if (!started) return null;
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Avtale, Pasient, Behandler, BehandlerRangering } from "@/types";
-import { getAvtaleColor, getAvtaleCategory, getCategoryColor } from "@/lib/colors";
+import { getAvtaleColor, getAvtaleCategory, getCategoryColor, formatYtelseId } from "@/lib/colors";
 import { AvtaleModal } from "./AvtaleModal";
 
 type WeekCalendarProps = {
@@ -334,7 +334,10 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
                               </div>
                               {getPersonNavn(slotInfo.avtale) && !(viewMode === "behandler" && slotInfo.avtale.type === "gruppe") && (
                                 <div className={`flex items-center gap-1 ${color.textSecondary} ${color.textSecondaryDark}`}>
-                                  <span className="truncate">{getPersonNavn(slotInfo.avtale)}</span>
+                                  <span className="truncate">{getPersonNavn(slotInfo.avtale)}{viewMode === "behandler" && slotInfo.avtale.type !== "gruppe" && (() => {
+                                    const pasient = pasienter.find((p) => p.id === slotInfo.avtale.pasientId);
+                                    return pasient?.ytelse ? <span className="font-normal opacity-70"> ({formatYtelseId(pasient.ytelse)})</span> : null;
+                                  })()}</span>
                                   {(() => {
                                     const rang = getRangering(slotInfo.avtale.behandlerId);
                                     if (rang === null) return null;
