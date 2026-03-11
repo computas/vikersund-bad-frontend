@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useGrupper, usePasienter, useBehandlere } from "@/hooks";
 import { useAvtaler } from "@/hooks";
+import { useUpdateGruppeAktivitet } from "@/hooks/useGrupper";
 import { WeekCalendar, formatDateLocal } from "./WeekCalendar";
+import { Avtale } from "@/types";
 
 type GruppeKalenderStepProps = {
   selectedMonday: Date;
@@ -20,9 +22,45 @@ export function GruppeKalenderStep({ selectedMonday, onWeekChange }: GruppeKalen
   const startDato = formatDateLocal(selectedMonday);
   const { data: avtaler = [] } = useAvtaler({ startDato });
 
+  const updateAktivitet = useUpdateGruppeAktivitet();
+
   const selectedGruppe = grupper.find((g) => g.id === selectedGruppeId);
   const representativePasientId = selectedGruppe?.pasienter[0]?.id ?? null;
-  const gruppeAvtaler = avtaler.filter((a) => a.pasientId === representativePasientId && a.type === "gruppe");
+  const gruppeAvtaler = avtaler
+    .filter((a) => a.pasientId === representativePasientId && a.type === "gruppe")
+    .map((avtale) => {
+      if (!selectedGruppe) return avtale;
+      const avtaleDag = new Date(avtale.dato + "T00:00:00").getDay();
+      const dagIndex = (avtaleDag + 6) % 7;
+      const plan = selectedGruppe.ukentligPlan.find(
+        (p) => p.dag === dagIndex && p.startTid === avtale.startTid
+      );
+      return plan && plan.behandlerId !== undefined
+        ? { ...avtale, behandlerId: plan.behandlerId ?? null }
+        : avtale;
+    });
+
+  async function handleUpdateBehandler(avtale: Avtale, behandlerId: number | null) {
+    if (!selectedGruppe) return;
+    // Finn matchende GruppeAktivitetPlan via ukedag og starttid
+    const avtaleDag = new Date(avtale.dato + "T00:00:00").getDay();
+    const dagIndex = (avtaleDag + 6) % 7; // Konverter til 0=mandag
+    const aktivitet = selectedGruppe.ukentligPlan.find(
+      (p) => p.dag === dagIndex && p.startTid === avtale.startTid
+    );
+    if (!aktivitet?.id) {
+      throw new Error("Fant ikke matchende gruppeaktivitet");
+    }
+    await updateAktivitet.mutateAsync({
+      gruppeId: selectedGruppe.id,
+      aktivitetId: aktivitet.id,
+      dag: aktivitet.dag,
+      startTid: aktivitet.startTid,
+      sluttTid: aktivitet.sluttTid,
+      aktivitetNavn: aktivitet.aktivitet,
+      behandlerId,
+    });
+  }
 
   return (
     <div>
@@ -67,6 +105,7 @@ export function GruppeKalenderStep({ selectedMonday, onWeekChange }: GruppeKalen
         currentMonday={selectedMonday}
         onWeekChange={onWeekChange}
         hideNavigation
+        onUpdateAvtaleBehandler={handleUpdateBehandler}
       />
     </div>
   );

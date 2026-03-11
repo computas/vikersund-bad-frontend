@@ -15,6 +15,7 @@ type WeekCalendarProps = {
   hideNavigation?: boolean;
   rangeringerMap?: Map<number, BehandlerRangering[]>;
   ytelseKey?: string;
+  onUpdateAvtaleBehandler?: (avtale: Avtale, behandlerId: number | null) => Promise<void>;
 };
 
 // Generer 15-minutters slots fra 09:00 til 16:00
@@ -114,7 +115,7 @@ function getAvtaleForSlot(
 }
 
 
-export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [], currentMonday, onWeekChange, hideNavigation = false, rangeringerMap, ytelseKey }: WeekCalendarProps) {
+export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [], currentMonday, onWeekChange, hideNavigation = false, rangeringerMap, ytelseKey, onUpdateAvtaleBehandler }: WeekCalendarProps) {
   const [selectedAvtale, setSelectedAvtale] = useState<Avtale | null>(null);
 
   const getRangering = (behandlerId: number | null): number | null => {
@@ -378,6 +379,13 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
           personNavn={getPersonNavn(selectedAvtale)}
           viewMode={viewMode}
           onClose={() => setSelectedAvtale(null)}
+          behandlere={onUpdateAvtaleBehandler ? behandlere : undefined}
+          onSave={
+            onUpdateAvtaleBehandler
+              ? (behandlerId) =>
+                  onUpdateAvtaleBehandler(selectedAvtale, behandlerId)
+              : undefined
+          }
         />
       )}
     </div>

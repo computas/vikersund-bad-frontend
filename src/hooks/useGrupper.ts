@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Gruppe } from "@/types";
 import { API_URL } from "@/lib/api";
 
@@ -16,5 +16,52 @@ export function useGrupper() {
   return useQuery({
     queryKey: ["grupper"],
     queryFn: fetchGrupper,
+  });
+}
+
+export function useUpdateGruppeAktivitet() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      gruppeId,
+      aktivitetId,
+      dag,
+      startTid,
+      sluttTid,
+      aktivitetNavn,
+      behandlerId,
+    }: {
+      gruppeId: string;
+      aktivitetId: number;
+      dag: number;
+      startTid: string;
+      sluttTid: string;
+      aktivitetNavn: string;
+      behandlerId: number | null;
+    }) => {
+      const response = await fetch(
+        `${API_URL}/grupper/${gruppeId}/aktiviteter/${aktivitetId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            dag,
+            start_tid: startTid,
+            slutt_tid: sluttTid,
+            aktivitet_navn: aktivitetNavn,
+            behandler_id: behandlerId,
+          }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Feil ved oppdatering av gruppeaktivitet: ${response.status}`);
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["grupper"] });
+      queryClient.invalidateQueries({ queryKey: ["avtaler"] });
+    },
   });
 }
