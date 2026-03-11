@@ -163,6 +163,7 @@ const KEYWORD_MAP: [string[], string][] = [
 
 export function getAvtaleColor(beskrivelse: string): ColorScheme {
   const lower = beskrivelse.toLowerCase();
+  if (COLORS[lower]) return COLORS[lower];
   for (const [keywords, category] of KEYWORD_MAP) {
     if (keywords.some((kw) => lower.includes(kw))) {
       return COLORS[category];
@@ -173,6 +174,7 @@ export function getAvtaleColor(beskrivelse: string): ColorScheme {
 
 export function getAvtaleCategory(beskrivelse: string): string {
   const lower = beskrivelse.toLowerCase();
+  if (COLORS[lower]) return lower;
   for (const [keywords, category] of KEYWORD_MAP) {
     if (keywords.some((kw) => lower.includes(kw))) {
       return category;

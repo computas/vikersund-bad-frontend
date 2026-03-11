@@ -30,6 +30,7 @@ export type Avtale = {
   sluttTid: string; // HH:MM
   beskrivelse: string;
   type?: "gruppe" | "individuell";
+  aktivitetType?: string; // f.eks. "basseng", "trening", "undervisning"
 };
 
 export type IkkePlanlagt = {
@@ -73,6 +74,7 @@ export type GruppeAktivitetPlan = {
   startTid: string;
   sluttTid: string;
   aktivitet: string;
+  type?: string; // f.eks. "basseng", "trening", "undervisning"
   behandlerId?: number | null;
 };
 

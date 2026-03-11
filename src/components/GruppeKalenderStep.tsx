@@ -35,9 +35,12 @@ export function GruppeKalenderStep({ selectedMonday, onWeekChange }: GruppeKalen
       const plan = selectedGruppe.ukentligPlan.find(
         (p) => p.dag === dagIndex && p.startTid === avtale.startTid
       );
-      return plan && plan.behandlerId !== undefined
-        ? { ...avtale, behandlerId: plan.behandlerId ?? null }
-        : avtale;
+      if (!plan) return avtale;
+      return {
+        ...avtale,
+        ...(plan.behandlerId !== undefined && { behandlerId: plan.behandlerId ?? null }),
+        ...(plan.type && { aktivitetType: plan.type }),
+      };
     });
 
   async function handleUpdateBehandler(avtale: Avtale, behandlerId: number | null) {
