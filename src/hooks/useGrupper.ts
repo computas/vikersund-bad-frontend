@@ -30,6 +30,7 @@ export function useUpdateGruppeAktivitet() {
       startTid,
       sluttTid,
       aktivitetNavn,
+      aktivitetType,
       behandlerId,
     }: {
       gruppeId: string;
@@ -38,6 +39,7 @@ export function useUpdateGruppeAktivitet() {
       startTid: string;
       sluttTid: string;
       aktivitetNavn: string;
+      aktivitetType?: string;
       behandlerId: number | null;
     }) => {
       const response = await fetch(
@@ -50,6 +52,7 @@ export function useUpdateGruppeAktivitet() {
             start_tid: startTid,
             slutt_tid: sluttTid,
             aktivitet_navn: aktivitetNavn,
+            ...(aktivitetType !== undefined && { type: aktivitetType }),
             behandler_id: behandlerId,
           }),
         }

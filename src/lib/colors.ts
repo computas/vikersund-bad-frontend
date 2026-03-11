@@ -189,6 +189,11 @@ export function getCategoryColor(category: string): ColorScheme {
 
 export { COLORS };
 
+export const AKTIVITET_TYPER = Object.entries(COLORS).map(([value, scheme]) => ({
+  value,
+  label: scheme.label,
+}));
+
 const YTELSE_OVERRIDES: Record<string, string> = {
   YTELSE_AO: "Ytelse A+O",
 };

@@ -5,6 +5,7 @@ import { useGrupper, usePasienter, useBehandlere } from "@/hooks";
 import { useAvtaler } from "@/hooks";
 import { useUpdateGruppeAktivitet } from "@/hooks/useGrupper";
 import { WeekCalendar, formatDateLocal } from "./WeekCalendar";
+import { AvtaleModal, GruppeAktivitetSaveData } from "./AvtaleModal";
 import { Avtale } from "@/types";
 
 type GruppeKalenderStepProps = {
@@ -18,6 +19,7 @@ export function GruppeKalenderStep({ selectedMonday, onWeekChange }: GruppeKalen
   const { data: behandlere = [] } = useBehandlere();
 
   const [selectedGruppeId, setSelectedGruppeId] = useState<string>("YTELSE_AO");
+  const [selectedAvtale, setSelectedAvtale] = useState<Avtale | null>(null);
 
   const startDato = formatDateLocal(selectedMonday);
   const { data: avtaler = [] } = useAvtaler({ startDato });
@@ -43,13 +45,17 @@ export function GruppeKalenderStep({ selectedMonday, onWeekChange }: GruppeKalen
       };
     });
 
-  async function handleUpdateBehandler(avtale: Avtale, behandlerId: number | null) {
+  async function handleSaveAktivitet(
+    avtale: Avtale,
+    { dag, startTid, sluttTid, aktivitetNavn, aktivitetType, behandlerId }: {
+      dag: number; startTid: string; sluttTid: string;
+      aktivitetNavn: string; aktivitetType: string | null; behandlerId: number | null;
+    }
+  ) {
     if (!selectedGruppe) return;
-    // Finn matchende GruppeAktivitetPlan via ukedag og starttid
-    const avtaleDag = new Date(avtale.dato + "T00:00:00").getDay();
-    const dagIndex = (avtaleDag + 6) % 7; // Konverter til 0=mandag
+    const originalDag = (new Date(avtale.dato + "T00:00:00").getDay() + 6) % 7;
     const aktivitet = selectedGruppe.ukentligPlan.find(
-      (p) => p.dag === dagIndex && p.startTid === avtale.startTid
+      (p) => p.dag === originalDag && p.startTid === avtale.startTid
     );
     if (!aktivitet?.id) {
       throw new Error("Fant ikke matchende gruppeaktivitet");
@@ -57,10 +63,11 @@ export function GruppeKalenderStep({ selectedMonday, onWeekChange }: GruppeKalen
     await updateAktivitet.mutateAsync({
       gruppeId: selectedGruppe.id,
       aktivitetId: aktivitet.id,
-      dag: aktivitet.dag,
-      startTid: aktivitet.startTid,
-      sluttTid: aktivitet.sluttTid,
-      aktivitetNavn: aktivitet.aktivitet,
+      dag,
+      startTid,
+      sluttTid,
+      aktivitetNavn,
+      aktivitetType: aktivitetType ?? undefined,
       behandlerId,
     });
   }
@@ -108,8 +115,21 @@ export function GruppeKalenderStep({ selectedMonday, onWeekChange }: GruppeKalen
         currentMonday={selectedMonday}
         onWeekChange={onWeekChange}
         hideNavigation
-        onUpdateAvtaleBehandler={handleUpdateBehandler}
+        onAvtaleClick={setSelectedAvtale}
       />
+
+      {selectedAvtale && (
+        <AvtaleModal
+          avtale={selectedAvtale}
+          personNavn={behandlere.find((b) => b.id === selectedAvtale.behandlerId)?.navn ?? null}
+          viewMode="pasient"
+          onClose={() => setSelectedAvtale(null)}
+          behandlere={behandlere}
+          gruppeAktiviteter={selectedGruppe?.ukentligPlan}
+          alleGruppeAktiviteter={grupper.flatMap((g) => g.ukentligPlan.map((p) => ({ ...p, gruppeNavn: g.navn })))}
+          onSave={(data: GruppeAktivitetSaveData) => handleSaveAktivitet(selectedAvtale, data)}
+        />
+      )}
     </div>
   );
 }

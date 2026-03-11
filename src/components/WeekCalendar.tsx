@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Avtale, Pasient, Behandler, BehandlerRangering } from "@/types";
 import {
   getAvtaleColor,
@@ -8,7 +7,6 @@ import {
   getCategoryColor,
   formatYtelseId,
 } from "@/lib/colors";
-import { AvtaleModal } from "./AvtaleModal";
 
 type WeekCalendarProps = {
   avtaler: Avtale[];
@@ -20,10 +18,7 @@ type WeekCalendarProps = {
   hideNavigation?: boolean;
   rangeringerMap?: Map<number, BehandlerRangering[]>;
   ytelseKey?: string;
-  onUpdateAvtaleBehandler?: (
-    avtale: Avtale,
-    behandlerId: number | null,
-  ) => Promise<void>;
+  onAvtaleClick?: (avtale: Avtale) => void;
 };
 
 // Generer 15-minutters slots fra 09:00 til 16:00
@@ -148,9 +143,8 @@ export function WeekCalendar({
   hideNavigation = false,
   rangeringerMap,
   ytelseKey,
-  onUpdateAvtaleBehandler,
+  onAvtaleClick,
 }: WeekCalendarProps) {
-  const [selectedAvtale, setSelectedAvtale] = useState<Avtale | null>(null);
 
   const getRangering = (behandlerId: number | null): number | null => {
     if (!behandlerId || !rangeringerMap || !ytelseKey) return null;
@@ -368,7 +362,7 @@ export function WeekCalendar({
                         <div
                           onClick={() =>
                             slotInfo.isStart &&
-                            setSelectedAvtale(slotInfo.avtale)
+                            onAvtaleClick?.(slotInfo.avtale)
                           }
                           className={`h-full overflow-hidden ${color.bg} ${color.bgDark} text-xs ${roundedClass} ${
                             slotInfo.avtale.type === "gruppe"
@@ -466,22 +460,6 @@ export function WeekCalendar({
         </div>
       </div>
 
-      {/* Avtale detail modal */}
-      {selectedAvtale && (
-        <AvtaleModal
-          avtale={selectedAvtale}
-          personNavn={getPersonNavn(selectedAvtale)}
-          viewMode={viewMode}
-          onClose={() => setSelectedAvtale(null)}
-          behandlere={onUpdateAvtaleBehandler ? behandlere : undefined}
-          onSave={
-            onUpdateAvtaleBehandler
-              ? (behandlerId) =>
-                  onUpdateAvtaleBehandler(selectedAvtale, behandlerId)
-              : undefined
-          }
-        />
-      )}
     </div>
   );
 }
