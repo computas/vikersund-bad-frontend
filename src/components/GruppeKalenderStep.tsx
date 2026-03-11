@@ -28,22 +28,9 @@ export function GruppeKalenderStep({ selectedMonday, onWeekChange }: GruppeKalen
 
   const selectedGruppe = grupper.find((g) => g.id === selectedGruppeId);
   const representativePasientId = selectedGruppe?.pasienter[0]?.id ?? null;
-  const gruppeAvtaler = avtaler
-    .filter((a) => a.pasientId === representativePasientId && a.type === "gruppe")
-    .map((avtale) => {
-      if (!selectedGruppe) return avtale;
-      const avtaleDag = new Date(avtale.dato + "T00:00:00").getDay();
-      const dagIndex = (avtaleDag + 6) % 7;
-      const plan = selectedGruppe.ukentligPlan.find(
-        (p) => p.dag === dagIndex && p.startTid === avtale.startTid
-      );
-      if (!plan) return avtale;
-      return {
-        ...avtale,
-        ...(plan.behandlerId !== undefined && { behandlerId: plan.behandlerId ?? null }),
-        ...(plan.type && { aktivitetType: plan.type }),
-      };
-    });
+  const gruppeAvtaler = avtaler.filter(
+    (a) => a.pasientId === representativePasientId && a.type === "gruppe"
+  );
 
   async function handleSaveAktivitet(
     avtale: Avtale,
