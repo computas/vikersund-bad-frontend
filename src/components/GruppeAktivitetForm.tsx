@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Avtale, Behandler, GruppeAktivitetPlan } from "@/types";
+import { Avtale } from "@/types";
 import { AKTIVITET_TYPER } from "@/lib/colors";
+import { useBehandlere } from "@/hooks/useBehandlere";
+import { useGrupper } from "@/hooks/useGrupper";
 
 export type GruppeAktivitetSaveData = {
   dag: number;
@@ -15,9 +17,7 @@ export type GruppeAktivitetSaveData = {
 
 type Props = {
   avtale: Avtale;
-  behandlere: Behandler[];
-  gruppeAktiviteter: GruppeAktivitetPlan[];
-  alleGruppeAktiviteter?: (GruppeAktivitetPlan & { gruppeNavn?: string })[];
+  gruppeId: string;
   onSave: (data: GruppeAktivitetSaveData) => Promise<void>;
   onClose: () => void;
 };
@@ -38,7 +38,16 @@ const SELECT_CLASS =
 const LABEL_CLASS =
   "text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400";
 
-export function GruppeAktivitetForm({ avtale, behandlere, gruppeAktiviteter, alleGruppeAktiviteter, onSave, onClose }: Props) {
+export function GruppeAktivitetForm({ avtale, gruppeId, onSave, onClose }: Props) {
+  const { data: behandlere = [] } = useBehandlere();
+  const { data: grupper = [] } = useGrupper();
+
+  const gruppe = grupper.find((g) => g.id === gruppeId);
+  const gruppeAktiviteter = gruppe?.ukentligPlan ?? [];
+  const alleGruppeAktiviteter = grupper.flatMap((g) =>
+    g.ukentligPlan.map((p) => ({ ...p, gruppeNavn: g.navn }))
+  );
+
   const originalDag = (new Date(avtale.dato + "T00:00:00").getDay() + 6) % 7;
 
   const [dag, setDag] = useState(originalDag);
@@ -72,7 +81,7 @@ export function GruppeAktivitetForm({ avtale, behandlere, gruppeAktiviteter, all
       return `Overlapper med "${conflicting.aktivitet}" (${conflicting.startTid}–${conflicting.sluttTid})`;
     }
 
-    if (behandlerId !== null && alleGruppeAktiviteter) {
+    if (behandlerId !== null) {
       const currentAktivitetId = gruppeAktiviteter.find(
         (p) => p.dag === originalDag && p.startTid === avtale.startTid
       )?.id;

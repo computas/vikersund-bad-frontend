@@ -124,9 +124,7 @@ export function GruppeKalenderStep({ selectedMonday, onWeekChange }: GruppeKalen
           personNavn={behandlere.find((b) => b.id === selectedAvtale.behandlerId)?.navn ?? null}
           viewMode="pasient"
           onClose={() => setSelectedAvtale(null)}
-          behandlere={behandlere}
-          gruppeAktiviteter={selectedGruppe?.ukentligPlan}
-          alleGruppeAktiviteter={grupper.flatMap((g) => g.ukentligPlan.map((p) => ({ ...p, gruppeNavn: g.navn })))}
+          gruppeId={selectedGruppeId}
           onSave={(data: GruppeAktivitetSaveData) => handleSaveAktivitet(selectedAvtale, data)}
         />
       )}

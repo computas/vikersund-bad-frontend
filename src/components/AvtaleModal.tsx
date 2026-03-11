@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Avtale, Behandler, GruppeAktivitetPlan } from "@/types";
+import { Avtale } from "@/types";
 import { getAvtaleColor } from "@/lib/colors";
 import { InfoField } from "./InfoField";
 import {
@@ -16,9 +16,7 @@ type AvtaleModalProps = {
   personNavn: string | null;
   viewMode: "pasient" | "behandler";
   onClose: () => void;
-  behandlere?: Behandler[];
-  gruppeAktiviteter?: GruppeAktivitetPlan[];
-  alleGruppeAktiviteter?: (GruppeAktivitetPlan & { gruppeNavn?: string })[];
+  gruppeId?: string;
   onSave?: (data: GruppeAktivitetSaveData) => Promise<void>;
 };
 
@@ -27,13 +25,11 @@ export function AvtaleModal({
   personNavn,
   viewMode,
   onClose,
-  behandlere,
-  gruppeAktiviteter,
-  alleGruppeAktiviteter,
+  gruppeId,
   onSave,
 }: AvtaleModalProps) {
   const color = getAvtaleColor(avtale.aktivitetType ?? "");
-  const kanRedigeres = avtale.type === "gruppe" && !!behandlere && !!onSave;
+  const kanRedigeres = avtale.type === "gruppe" && !!gruppeId && !!onSave;
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -84,9 +80,7 @@ export function AvtaleModal({
         {kanRedigeres ? (
           <GruppeAktivitetForm
             avtale={avtale}
-            behandlere={behandlere!}
-            gruppeAktiviteter={gruppeAktiviteter ?? []}
-            alleGruppeAktiviteter={alleGruppeAktiviteter}
+            gruppeId={gruppeId!}
             onSave={onSave!}
             onClose={onClose}
           />
