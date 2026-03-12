@@ -18,6 +18,7 @@ type AvtaleModalProps = {
   onClose: () => void;
   gruppeId?: string;
   onSave?: (data: GruppeAktivitetSaveData) => Promise<void>;
+  onDelete?: () => Promise<void>;
 };
 
 export function AvtaleModal({
@@ -27,6 +28,7 @@ export function AvtaleModal({
   onClose,
   gruppeId,
   onSave,
+  onDelete,
 }: AvtaleModalProps) {
   const color = getAvtaleColor(avtale.aktivitetType ?? "");
   const kanRedigeres = avtale.type === "gruppe" && !!gruppeId && !!onSave;
@@ -82,6 +84,7 @@ export function AvtaleModal({
             avtale={avtale}
             gruppeId={gruppeId!}
             onSave={onSave!}
+            onDelete={onDelete}
             onClose={onClose}
           />
         ) : (
