@@ -4,9 +4,11 @@ import { useState } from "react";
 import { useAvtaler } from "@/hooks";
 import { InfoField } from "./InfoField";
 import { WeekCalendar, formatDateLocal } from "./WeekCalendar";
+import { AvtaleModal } from "./AvtaleModal";
 import { usePasienter } from "@/hooks/usePasienter";
 import { useBehandlere, useBehandlereRangeringer } from "@/hooks/useBehandlere";
 import { formatYtelseId } from "@/lib/colors";
+import { Avtale } from "@/types";
 
 type PasientTabProps = {
   selectedMonday: Date;
@@ -15,6 +17,7 @@ type PasientTabProps = {
 
 export function PasientTab({ selectedMonday, onWeekChange }: PasientTabProps) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedAvtale, setSelectedAvtale] = useState<Avtale | null>(null);
   const startDato = formatDateLocal(selectedMonday);
   const {
     data: avtaler = [],
@@ -119,6 +122,16 @@ export function PasientTab({ selectedMonday, onWeekChange }: PasientTabProps) {
               onWeekChange={onWeekChange}
               rangeringerMap={rangeringerMap}
               ytelseKey={selected.ytelseId ?? selected.ytelse}
+              onAvtaleClick={setSelectedAvtale}
+            />
+          )}
+
+          {selectedAvtale && (
+            <AvtaleModal
+              avtale={selectedAvtale}
+              personNavn={behandlere.find((b) => b.id === selectedAvtale.behandlerId)?.navn ?? null}
+              viewMode="pasient"
+              onClose={() => setSelectedAvtale(null)}
             />
           )}
         </div>

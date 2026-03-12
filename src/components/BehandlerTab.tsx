@@ -7,7 +7,9 @@ import { usePasienter } from "@/hooks/usePasienter";
 import { useGrupper } from "@/hooks";
 import { InfoField } from "./InfoField";
 import { WeekCalendar, formatDateLocal } from "./WeekCalendar";
+import { AvtaleModal } from "./AvtaleModal";
 import { formatYtelseId } from "@/lib/colors";
+import { Avtale } from "@/types";
 
 type BehandlerTabProps = {
   selectedMonday: Date;
@@ -16,6 +18,7 @@ type BehandlerTabProps = {
 
 export function BehandlerTab({ selectedMonday, onWeekChange }: BehandlerTabProps) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedAvtale, setSelectedAvtale] = useState<Avtale | null>(null);
   const startDato = formatDateLocal(selectedMonday);
   const {
     data: avtaler = [],
@@ -125,6 +128,16 @@ export function BehandlerTab({ selectedMonday, onWeekChange }: BehandlerTabProps
               pasienter={pasienter}
               currentMonday={selectedMonday}
               onWeekChange={onWeekChange}
+              onAvtaleClick={setSelectedAvtale}
+            />
+          )}
+
+          {selectedAvtale && (
+            <AvtaleModal
+              avtale={selectedAvtale}
+              personNavn={pasienter.find((p) => p.id === selectedAvtale.pasientId)?.navn ?? null}
+              viewMode="behandler"
+              onClose={() => setSelectedAvtale(null)}
             />
           )}
         </div>

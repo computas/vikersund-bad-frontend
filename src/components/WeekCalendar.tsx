@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import { Avtale, Pasient, Behandler, BehandlerRangering } from "@/types";
-import { getAvtaleColor, getAvtaleCategory, getCategoryColor, formatYtelseId } from "@/lib/colors";
-import { AvtaleModal } from "./AvtaleModal";
+import {
+  getAvtaleColor,
+  getAvtaleCategory,
+  getCategoryColor,
+  formatYtelseId,
+} from "@/lib/colors";
 
 type WeekCalendarProps = {
   avtaler: Avtale[];
@@ -15,6 +18,8 @@ type WeekCalendarProps = {
   hideNavigation?: boolean;
   rangeringerMap?: Map<number, BehandlerRangering[]>;
   ytelseKey?: string;
+  onAvtaleClick?: (avtale: Avtale) => void;
+  editMode?: boolean;
 };
 
 // Generer 15-minutters slots fra 09:00 til 16:00
@@ -22,7 +27,9 @@ function generateTimeSlots(): string[] {
   const slots: string[] = [];
   for (let hour = 9; hour < 16; hour++) {
     for (let minute = 0; minute < 60; minute += 15) {
-      slots.push(`${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`);
+      slots.push(
+        `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`,
+      );
     }
   }
   return slots;
@@ -32,8 +39,18 @@ const TIMER = generateTimeSlots();
 const LUNCH_SLOTS = new Set(["11:30", "11:45"]);
 const UKEDAGER = ["Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag"];
 const MANEDER = [
-  "Januar", "Februar", "Mars", "April", "Mai", "Juni",
-  "Juli", "August", "September", "Oktober", "November", "Desember"
+  "Januar",
+  "Februar",
+  "Mars",
+  "April",
+  "Mai",
+  "Juni",
+  "Juli",
+  "August",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
 ];
 
 export function getMondayOfWeek(date: Date): Date {
@@ -53,7 +70,9 @@ export function formatDateLocal(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-function getWeekDatesFromMonday(monday: Date): { dato: string; ukedag: string; dagManed: string }[] {
+function getWeekDatesFromMonday(
+  monday: Date,
+): { dato: string; ukedag: string; dagManed: string }[] {
   return UKEDAGER.map((ukedag, i) => {
     const date = new Date(monday);
     date.setDate(monday.getDate() + i);
@@ -66,11 +85,13 @@ function getWeekDatesFromMonday(monday: Date): { dato: string; ukedag: string; d
 }
 
 function getWeekNumber(date: Date): number {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const d = new Date(
+    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
+  );
   const dayNum = d.getUTCDay() || 7;
   d.setUTCDate(d.getUTCDate() + 4 - dayNum);
   const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+  return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
 }
 
 // Konverter tid (HH:MM) til minutter fra midnatt
@@ -89,7 +110,7 @@ type SlotInfo = {
 function getAvtaleForSlot(
   avtaler: Avtale[],
   dato: string,
-  slotTime: string
+  slotTime: string,
 ): SlotInfo {
   const slotMinutes = timeToMinutes(slotTime);
   const slotEnd = slotMinutes + 15; // Hver slot er 15 min
@@ -113,10 +134,19 @@ function getAvtaleForSlot(
   return null;
 }
 
-
-export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [], currentMonday, onWeekChange, hideNavigation = false, rangeringerMap, ytelseKey }: WeekCalendarProps) {
-  const [selectedAvtale, setSelectedAvtale] = useState<Avtale | null>(null);
-
+export function WeekCalendar({
+  avtaler,
+  viewMode,
+  pasienter = [],
+  behandlere = [],
+  currentMonday,
+  onWeekChange,
+  hideNavigation = false,
+  rangeringerMap,
+  ytelseKey,
+  onAvtaleClick,
+  editMode = false,
+}: WeekCalendarProps) {
   const getRangering = (behandlerId: number | null): number | null => {
     if (!behandlerId || !rangeringerMap || !ytelseKey) return null;
     const rangeringer = rangeringerMap.get(behandlerId);
@@ -141,7 +171,9 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
   const currentMonth = currentMonday.getMonth();
 
   // Finn unike kategorier for legend
-  const activeCategories = [...new Set(avtaler.map((a) => getAvtaleCategory(a.beskrivelse)))];
+  const activeCategories = [
+    ...new Set(avtaler.map((a) => getAvtaleCategory(a.aktivitetType ?? ""))),
+  ];
 
   const navigateWeek = (delta: number) => {
     const newMonday = new Date(currentMonday);
@@ -225,20 +257,35 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
             {activeCategories.map((cat) => {
               const color = getCategoryColor(cat);
               return (
-                <div key={cat} className="flex items-center gap-1.5">
-                  <span className={`inline-block h-2.5 w-2.5 rounded-full ${color.dot}`} />
-                  <span className="text-zinc-600 dark:text-zinc-400">{color.label}</span>
+                <div
+                  key={cat}
+                  className="flex items-center gap-1.5"
+                >
+                  <span
+                    className={`inline-block h-2.5 w-2.5 rounded-full ${color.dot}`}
+                  />
+                  <span className="text-zinc-600 dark:text-zinc-400">
+                    {color.label}
+                  </span>
                 </div>
               );
             })}
             <div className="mx-1 h-4 w-px bg-zinc-300 dark:bg-zinc-600" />
             <div className="flex items-center gap-1.5">
-              <span className="inline-block rounded border-l-3 border-l-zinc-400 bg-zinc-500/20 px-1 py-px text-[9px] font-semibold uppercase leading-tight text-zinc-700 dark:border-l-zinc-500 dark:bg-zinc-400/20 dark:text-zinc-300">Gruppe</span>
-              <span className="text-zinc-600 dark:text-zinc-400">Gruppeaktivitet</span>
+              <span className="inline-block rounded border-l-3 border-l-zinc-400 bg-zinc-500/20 px-1 py-px text-[9px] font-semibold uppercase leading-tight text-zinc-700 dark:border-l-zinc-500 dark:bg-zinc-400/20 dark:text-zinc-300">
+                Gruppe
+              </span>
+              <span className="text-zinc-600 dark:text-zinc-400">
+                Gruppeaktivitet
+              </span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="inline-block rounded bg-blue-100 px-1 py-px text-[9px] font-semibold uppercase leading-tight text-blue-700 dark:bg-blue-900 dark:text-blue-300">Ind.</span>
-              <span className="text-zinc-600 dark:text-zinc-400">Individuell (optimert)</span>
+              <span className="inline-block rounded bg-blue-100 px-1 py-px text-[9px] font-semibold uppercase leading-tight text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                Ind.
+              </span>
+              <span className="text-zinc-600 dark:text-zinc-400">
+                Individuell (optimert)
+              </span>
             </div>
           </div>
         )}
@@ -287,7 +334,9 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
                   const roundedClass = slotInfo
                     ? `${slotInfo.isStart ? "rounded-t" : ""} ${slotInfo.isEnd ? "rounded-b" : ""}`
                     : "";
-                  const color = slotInfo ? getAvtaleColor(slotInfo.avtale.beskrivelse) : null;
+                  const color = slotInfo
+                    ? getAvtaleColor(slotInfo.avtale.aktivitetType ?? "")
+                    : null;
                   return (
                     <div
                       key={dag.dato}
@@ -299,64 +348,121 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
                         <div
                           className={`flex h-full min-h-[25px] items-center justify-center ${isLunchStart ? "rounded-t" : "rounded-b"}`}
                           style={{
-                            background: "repeating-linear-gradient(135deg, transparent, transparent 3px, rgba(161,161,170,0.15) 3px, rgba(161,161,170,0.15) 6px)",
+                            background:
+                              "repeating-linear-gradient(135deg, transparent, transparent 3px, rgba(161,161,170,0.15) 3px, rgba(161,161,170,0.15) 6px)",
                           }}
                         >
                           {isLunchStart && (
-                            <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500">Lunsj</span>
+                            <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500">
+                              Lunsj
+                            </span>
                           )}
                         </div>
                       )}
                       {slotInfo && color && (
                         <div
-                          onClick={() => slotInfo.isStart && setSelectedAvtale(slotInfo.avtale)}
-                          className={`h-full overflow-hidden ${color.bg} ${color.bgDark} text-xs ${roundedClass} ${
+                          onClick={() =>
+                            slotInfo.isStart && onAvtaleClick?.(slotInfo.avtale)
+                          }
+                          className={`group/cell h-full overflow-hidden ${color.bg} ${color.bgDark} text-xs ${roundedClass} ${
                             slotInfo.avtale.type === "gruppe"
                               ? "border-l-3 border-l-zinc-400 dark:border-l-zinc-500"
                               : ""
                           } ${
-                            slotInfo.isStart ? "px-1.5 pt-1 cursor-pointer hover:brightness-95 dark:hover:brightness-110" : "px-1.5"
+                            slotInfo.isStart && onAvtaleClick
+                              ? "px-1.5 pt-1 cursor-pointer hover:brightness-95 dark:hover:brightness-110"
+                              : slotInfo.isStart
+                                ? "px-1.5 pt-1"
+                                : "px-1.5"
                           } ${slotInfo.isEnd ? "pb-1" : ""}`}
                         >
                           {slotInfo.isStart && (
                             <>
                               <div className="flex items-center gap-1">
-                                <span className={`inline-block rounded px-1 py-px text-[9px] font-semibold uppercase leading-tight ${
-                                  slotInfo.avtale.type === "gruppe"
-                                    ? "bg-zinc-500/20 text-zinc-700 dark:bg-zinc-400/20 dark:text-zinc-300"
-                                    : "bg-white/40 text-current dark:bg-black/20"
-                                }`}>
-                                  {slotInfo.avtale.type === "gruppe" ? "Gruppe" : "Ind."}
+                                <span
+                                  className={`inline-block rounded px-1 py-px text-[9px] font-semibold uppercase leading-tight ${
+                                    slotInfo.avtale.type === "gruppe"
+                                      ? "bg-zinc-500/20 text-zinc-700 dark:bg-zinc-400/20 dark:text-zinc-300"
+                                      : "bg-white/40 text-current dark:bg-black/20"
+                                  }`}
+                                >
+                                  {slotInfo.avtale.type === "gruppe"
+                                    ? "Gruppe"
+                                    : "Ind."}
                                 </span>
-                                <span className={`truncate font-medium ${color.text} ${color.textDark}`}>
+                                <span
+                                  className={`truncate font-medium ${color.text} ${color.textDark}`}
+                                >
                                   {slotInfo.avtale.beskrivelse}
                                 </span>
+                                {editMode && (
+                                  <svg
+                                    className="ml-auto h-5 w-5 shrink-0 opacity-0 transition-opacity group-hover/cell:opacity-60"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    strokeWidth={1}
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M15.232 5.232l3.536 3.536M9 11l6.536-6.536a2 2 0 012.828 2.828L11.828 13.828a2 2 0 01-1.414.586H8v-2.414A2 2 0 018.586 10.5L9 11z"
+                                    />
+                                  </svg>
+                                )}
                               </div>
-                              {getPersonNavn(slotInfo.avtale) && !(viewMode === "behandler" && slotInfo.avtale.type === "gruppe") && (
-                                <div className={`flex items-center gap-1 ${color.textSecondary} ${color.textSecondaryDark}`}>
-                                  <span className="truncate">{getPersonNavn(slotInfo.avtale)}{viewMode === "behandler" && slotInfo.avtale.type !== "gruppe" && (() => {
-                                    const pasient = pasienter.find((p) => p.id === slotInfo.avtale.pasientId);
-                                    return pasient?.ytelse ? <span className="font-normal opacity-70"> ({formatYtelseId(pasient.ytelse)})</span> : null;
-                                  })()}</span>
-                                  {(() => {
-                                    const rang = getRangering(slotInfo.avtale.behandlerId);
-                                    if (rang === null) return null;
-                                    const badgeColor =
-                                      rang === 1
-                                        ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
-                                        : rang === 2
-                                          ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300"
-                                          : "bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300";
-                                    return (
-                                      <span className={`inline-flex items-center justify-center rounded px-1 text-[9px] font-bold leading-tight ${badgeColor}`}>
-                                        {rang}
-                                      </span>
-                                    );
-                                  })()}
-                                </div>
-                              )}
-                              <div className={`truncate ${color.textSecondary} ${color.textSecondaryDark}`}>
-                                {slotInfo.avtale.startTid}-{slotInfo.avtale.sluttTid}
+                              {getPersonNavn(slotInfo.avtale) &&
+                                !(
+                                  viewMode === "behandler" &&
+                                  slotInfo.avtale.type === "gruppe"
+                                ) && (
+                                  <div
+                                    className={`flex items-center gap-1 ${color.textSecondary} ${color.textSecondaryDark}`}
+                                  >
+                                    <span className="truncate">
+                                      {getPersonNavn(slotInfo.avtale)}
+                                      {viewMode === "behandler" &&
+                                        slotInfo.avtale.type !== "gruppe" &&
+                                        (() => {
+                                          const pasient = pasienter.find(
+                                            (p) =>
+                                              p.id ===
+                                              slotInfo.avtale.pasientId,
+                                          );
+                                          return pasient?.ytelse ? (
+                                            <span className="font-normal opacity-70">
+                                              {" "}
+                                              ({formatYtelseId(pasient.ytelse)})
+                                            </span>
+                                          ) : null;
+                                        })()}
+                                    </span>
+                                    {(() => {
+                                      const rang = getRangering(
+                                        slotInfo.avtale.behandlerId,
+                                      );
+                                      if (rang === null) return null;
+                                      const badgeColor =
+                                        rang === 1
+                                          ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
+                                          : rang === 2
+                                            ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300"
+                                            : "bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300";
+                                      return (
+                                        <span
+                                          className={`inline-flex items-center justify-center rounded px-1 text-[9px] font-bold leading-tight ${badgeColor}`}
+                                        >
+                                          {rang}
+                                        </span>
+                                      );
+                                    })()}
+                                  </div>
+                                )}
+                              <div
+                                className={`truncate ${color.textSecondary} ${color.textSecondaryDark}`}
+                              >
+                                {slotInfo.avtale.startTid}-
+                                {slotInfo.avtale.sluttTid}
                               </div>
                             </>
                           )}
@@ -370,16 +476,6 @@ export function WeekCalendar({ avtaler, viewMode, pasienter = [], behandlere = [
           })}
         </div>
       </div>
-
-      {/* Avtale detail modal */}
-      {selectedAvtale && (
-        <AvtaleModal
-          avtale={selectedAvtale}
-          personNavn={getPersonNavn(selectedAvtale)}
-          viewMode={viewMode}
-          onClose={() => setSelectedAvtale(null)}
-        />
-      )}
     </div>
   );
 }
