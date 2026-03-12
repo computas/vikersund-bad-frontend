@@ -19,6 +19,7 @@ type WeekCalendarProps = {
   rangeringerMap?: Map<number, BehandlerRangering[]>;
   ytelseKey?: string;
   onAvtaleClick?: (avtale: Avtale) => void;
+  editMode?: boolean;
 };
 
 // Generer 15-minutters slots fra 09:00 til 16:00
@@ -144,8 +145,8 @@ export function WeekCalendar({
   rangeringerMap,
   ytelseKey,
   onAvtaleClick,
+  editMode = false,
 }: WeekCalendarProps) {
-
   const getRangering = (behandlerId: number | null): number | null => {
     if (!behandlerId || !rangeringerMap || !ytelseKey) return null;
     const rangeringer = rangeringerMap.get(behandlerId);
@@ -361,17 +362,18 @@ export function WeekCalendar({
                       {slotInfo && color && (
                         <div
                           onClick={() =>
-                            slotInfo.isStart &&
-                            onAvtaleClick?.(slotInfo.avtale)
+                            slotInfo.isStart && onAvtaleClick?.(slotInfo.avtale)
                           }
-                          className={`h-full overflow-hidden ${color.bg} ${color.bgDark} text-xs ${roundedClass} ${
+                          className={`group/cell h-full overflow-hidden ${color.bg} ${color.bgDark} text-xs ${roundedClass} ${
                             slotInfo.avtale.type === "gruppe"
                               ? "border-l-3 border-l-zinc-400 dark:border-l-zinc-500"
                               : ""
                           } ${
-                            slotInfo.isStart
+                            slotInfo.isStart && onAvtaleClick
                               ? "px-1.5 pt-1 cursor-pointer hover:brightness-95 dark:hover:brightness-110"
-                              : "px-1.5"
+                              : slotInfo.isStart
+                                ? "px-1.5 pt-1"
+                                : "px-1.5"
                           } ${slotInfo.isEnd ? "pb-1" : ""}`}
                         >
                           {slotInfo.isStart && (
@@ -393,6 +395,21 @@ export function WeekCalendar({
                                 >
                                   {slotInfo.avtale.beskrivelse}
                                 </span>
+                                {editMode && (
+                                  <svg
+                                    className="ml-auto h-5 w-5 shrink-0 opacity-0 transition-opacity group-hover/cell:opacity-60"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    strokeWidth={1}
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M15.232 5.232l3.536 3.536M9 11l6.536-6.536a2 2 0 012.828 2.828L11.828 13.828a2 2 0 01-1.414.586H8v-2.414A2 2 0 018.586 10.5L9 11z"
+                                    />
+                                  </svg>
+                                )}
                               </div>
                               {getPersonNavn(slotInfo.avtale) &&
                                 !(
@@ -459,7 +476,6 @@ export function WeekCalendar({
           })}
         </div>
       </div>
-
     </div>
   );
 }

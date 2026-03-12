@@ -13,7 +13,10 @@ type GruppeKalenderStepProps = {
   onWeekChange: (monday: Date) => void;
 };
 
-export function GruppeKalenderStep({ selectedMonday, onWeekChange }: GruppeKalenderStepProps) {
+export function GruppeKalenderStep({
+  selectedMonday,
+  onWeekChange,
+}: GruppeKalenderStepProps) {
   const { data: grupper = [] } = useGrupper();
   const { data: pasienter = [] } = usePasienter();
   const { data: behandlere = [] } = useBehandlere();
@@ -29,20 +32,31 @@ export function GruppeKalenderStep({ selectedMonday, onWeekChange }: GruppeKalen
   const selectedGruppe = grupper.find((g) => g.id === selectedGruppeId);
   const representativePasientId = selectedGruppe?.pasienter[0]?.id ?? null;
   const gruppeAvtaler = avtaler.filter(
-    (a) => a.pasientId === representativePasientId && a.type === "gruppe"
+    (a) => a.pasientId === representativePasientId && a.type === "gruppe",
   );
 
   async function handleSaveAktivitet(
     avtale: Avtale,
-    { dag, startTid, sluttTid, aktivitetNavn, aktivitetType, behandlerId }: {
-      dag: number; startTid: string; sluttTid: string;
-      aktivitetNavn: string; aktivitetType: string | null; behandlerId: number | null;
-    }
+    {
+      dag,
+      startTid,
+      sluttTid,
+      aktivitetNavn,
+      aktivitetType,
+      behandlerId,
+    }: {
+      dag: number;
+      startTid: string;
+      sluttTid: string;
+      aktivitetNavn: string;
+      aktivitetType: string | null;
+      behandlerId: number | null;
+    },
   ) {
     if (!selectedGruppe) return;
     const originalDag = (new Date(avtale.dato + "T00:00:00").getDay() + 6) % 7;
     const aktivitet = selectedGruppe.ukentligPlan.find(
-      (p) => p.dag === originalDag && p.startTid === avtale.startTid
+      (p) => p.dag === originalDag && p.startTid === avtale.startTid,
     );
     if (!aktivitet?.id) {
       throw new Error("Fant ikke matchende gruppeaktivitet");
@@ -85,10 +99,13 @@ export function GruppeKalenderStep({ selectedMonday, onWeekChange }: GruppeKalen
       {selectedGruppe && (
         <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
           <p className="text-sm font-medium text-blue-900 dark:text-blue-200">
-            {selectedGruppe.navn} — {selectedGruppe.antallPasienter} pasienter, {selectedGruppe.gruppeAktiviteter} faste gruppeaktiviteter per uke
+            {selectedGruppe.navn} — {selectedGruppe.antallPasienter} pasienter,{" "}
+            {selectedGruppe.gruppeAktiviteter} faste gruppeaktiviteter per uke
           </p>
           <p className="mt-1 text-xs text-blue-700 dark:text-blue-300">
-            Kalenderen under viser de faste gruppeaktivitetene som er plassert for denne gruppen. Individuelle timer (fysioterapi, kontaktperson m.m.) planlegges i neste steg.
+            Kalenderen under viser de faste gruppeaktivitetene som er plassert
+            for denne gruppen. Individuelle timer (fysioterapi, kontaktperson
+            m.m.) planlegges i neste steg.
           </p>
         </div>
       )}
@@ -103,16 +120,22 @@ export function GruppeKalenderStep({ selectedMonday, onWeekChange }: GruppeKalen
         onWeekChange={onWeekChange}
         hideNavigation
         onAvtaleClick={setSelectedAvtale}
+        editMode={true}
       />
 
       {selectedAvtale && (
         <AvtaleModal
           avtale={selectedAvtale}
-          personNavn={behandlere.find((b) => b.id === selectedAvtale.behandlerId)?.navn ?? null}
+          personNavn={
+            behandlere.find((b) => b.id === selectedAvtale.behandlerId)?.navn ??
+            null
+          }
           viewMode="pasient"
           onClose={() => setSelectedAvtale(null)}
           gruppeId={selectedGruppeId}
-          onSave={(data: GruppeAktivitetSaveData) => handleSaveAktivitet(selectedAvtale, data)}
+          onSave={(data: GruppeAktivitetSaveData) =>
+            handleSaveAktivitet(selectedAvtale, data)
+          }
         />
       )}
     </div>
