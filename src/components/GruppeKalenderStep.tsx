@@ -22,7 +22,8 @@ export function GruppeKalenderStep({
   const { data: pasienter = [] } = usePasienter();
   const { data: behandlere = [] } = useBehandlere();
 
-  const [selectedGruppeId, setSelectedGruppeId] = useState<string>("YTELSE_AO");
+  const [selectedGruppeId, setSelectedGruppeId] = useState<string>("");
+  const activeGruppeId = selectedGruppeId || grupper[0]?.id || "";
   const [selectedAvtale, setSelectedAvtale] = useState<Avtale | null>(null);
   const [showNyAktivitet, setShowNyAktivitet] = useState(false);
 
@@ -35,7 +36,7 @@ export function GruppeKalenderStep({
 
   async function handleCreateAktivitet({ dag, startTid, sluttTid, aktivitetNavn, aktivitetType, behandlerId }: GruppeAktivitetSaveData) {
     await createAktivitet.mutateAsync({
-      gruppeId: selectedGruppeId,
+      gruppeId: activeGruppeId,
       dag,
       startTid,
       sluttTid,
@@ -45,7 +46,7 @@ export function GruppeKalenderStep({
     });
   }
 
-  const selectedGruppe = grupper.find((g) => g.id === selectedGruppeId);
+  const selectedGruppe = grupper.find((g) => g.id === activeGruppeId);
   const representativePasientId = selectedGruppe?.pasienter[0]?.id ?? null;
   const gruppeAvtaler = avtaler.filter(
     (a) => a.pasientId === representativePasientId && a.type === "gruppe",
@@ -113,7 +114,7 @@ export function GruppeKalenderStep({
             key={g.id}
             onClick={() => setSelectedGruppeId(g.id)}
             className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-              selectedGruppeId === g.id
+              activeGruppeId === g.id
                 ? "bg-blue-600 text-white"
                 : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600"
             }`}
@@ -185,7 +186,7 @@ export function GruppeKalenderStep({
               </button>
             </div>
             <GruppeAktivitetForm
-              gruppeId={selectedGruppeId}
+              gruppeId={activeGruppeId}
               onSave={handleCreateAktivitet}
               onClose={() => setShowNyAktivitet(false)}
             />
@@ -202,7 +203,7 @@ export function GruppeKalenderStep({
           }
           viewMode="pasient"
           onClose={() => setSelectedAvtale(null)}
-          gruppeId={selectedGruppeId}
+          gruppeId={activeGruppeId}
           onSave={(data: GruppeAktivitetSaveData) =>
             handleSaveAktivitet(selectedAvtale, data)
           }

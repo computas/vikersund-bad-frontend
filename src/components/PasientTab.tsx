@@ -121,7 +121,7 @@ export function PasientTab({ selectedMonday, onWeekChange }: PasientTabProps) {
               currentMonday={selectedMonday}
               onWeekChange={onWeekChange}
               rangeringerMap={rangeringerMap}
-              ytelseKey={selected.ytelseId ?? selected.ytelse}
+              ytelseKey={selected.ytelse}
               onAvtaleClick={setSelectedAvtale}
             />
           )}

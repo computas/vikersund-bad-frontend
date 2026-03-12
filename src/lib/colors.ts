@@ -194,13 +194,8 @@ export const AKTIVITET_TYPER = Object.entries(COLORS).map(([value, scheme]) => (
   label: scheme.label,
 }));
 
-const YTELSE_OVERRIDES: Record<string, string> = {
-  YTELSE_AO: "Ytelse A+O",
-};
-
 // Konverterer f.eks. "YTELSE_B" → "Ytelse B"
 export function formatYtelseId(id: string): string {
-  if (id in YTELSE_OVERRIDES) return YTELSE_OVERRIDES[id];
   return id
     .split("_")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
