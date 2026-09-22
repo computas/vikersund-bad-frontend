@@ -6,14 +6,7 @@ import {
   useCreateEkstraBehov,
   useDeleteEkstraBehov,
 } from "@/hooks";
-
-const SPESIALISERINGER = [
-  "FYSIO",
-  "SYKEPLEIER",
-  "PSYKOLOG",
-  "KONTAKTPERSON",
-  "SYNSPEDAGOG",
-];
+import { SPESIALISERINGER } from "@/lib/spesialiseringer";
 
 export type LocalBehov = { type: string; varighet: number; antall: number };
 

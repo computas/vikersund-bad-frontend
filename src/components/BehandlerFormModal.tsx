@@ -7,14 +7,7 @@ import {
   useUpdateBehandlerRangeringer,
 } from "@/hooks/useBehandlere";
 import type { Behandler } from "@/types";
-
-const SPESIALISERINGER = [
-  "FYSIO",
-  "SYKEPLEIER",
-  "PSYKOLOG",
-  "KONTAKTPERSON",
-  "SYNSPEDAGOG",
-];
+import { SPESIALISERINGER } from "@/lib/spesialiseringer";
 
 export function BehandlerFormModal({
   behandler,
