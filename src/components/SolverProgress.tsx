@@ -175,7 +175,7 @@ function ModellbyggFaseCard({ status, data }: { status: "completed" | "active" |
       `Legger til ${data.constraints.toLocaleString("no")} regler og begrensninger`,
       "Matcher behov med kvalifiserte behandlere...",
       "Sikrer at ingen har to aktiviteter på samme tid...",
-      "Reserverer lunsj fra 11:30 til 12:00 for alle...",
+      "Reserverer middag fra 16:00 til 17:00 for alle...",
     ];
   }, [data]);
 

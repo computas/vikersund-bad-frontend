@@ -42,8 +42,8 @@ export function OptimeringStep({ selectedMonday }: OptimeringStepProps) {
         </h2>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Optimeringen planlegger individuelle behandlingstimer (fysioterapi, kontaktperson m.m.)
-          rundt de faste gruppeaktivitetene. Algoritmen respekterer arbeidstid (09:00-16:00),
-          lunsj, ingen overlapp for pasienter eller behandlere, og kvalifikasjonskrav.
+          rundt de faste gruppeaktivitetene. Algoritmen respekterer tidsvinduet for individuelle timer (09:00-15:00),
+          middag (16:00-17:00), ingen overlapp for pasienter eller behandlere, og kvalifikasjonskrav.
         </p>
       </div>
 

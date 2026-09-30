@@ -25,9 +25,9 @@ type Props = {
 
 const UKEDAGER = ["Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag"];
 
-// 09:00 to 16:00 in 15-minute steps (29 slots)
-const TIDSLOTS = Array.from({ length: 29 }, (_, i) => {
-  const totalMinutter = 9 * 60 + i * 15;
+// 08:00 to 20:00 in 15-minute steps (49 slots)
+const TIDSLOTS = Array.from({ length: 49 }, (_, i) => {
+  const totalMinutter = 8 * 60 + i * 15;
   const h = Math.floor(totalMinutter / 60);
   const m = totalMinutter % 60;
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;

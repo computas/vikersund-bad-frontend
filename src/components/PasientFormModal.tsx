@@ -9,7 +9,7 @@ const DAG_NAVN = ["Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag"];
 
 const TID_VALG = (() => {
   const tider: string[] = [];
-  for (let h = 9; h < 16; h++) {
+  for (let h = 8; h < 20; h++) {
     for (let m = 0; m < 60; m += 15) {
       tider.push(`${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`);
     }

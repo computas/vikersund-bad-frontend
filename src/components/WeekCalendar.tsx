@@ -22,10 +22,10 @@ type WeekCalendarProps = {
   editMode?: boolean;
 };
 
-// Generer 15-minutters slots fra 09:00 til 16:00
+// Generer 15-minutters slots fra 08:00 til 20:00
 function generateTimeSlots(): string[] {
   const slots: string[] = [];
-  for (let hour = 9; hour < 16; hour++) {
+  for (let hour = 8; hour < 20; hour++) {
     for (let minute = 0; minute < 60; minute += 15) {
       slots.push(
         `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`,
@@ -36,7 +36,9 @@ function generateTimeSlots(): string[] {
 }
 
 const TIMER = generateTimeSlots();
-const LUNCH_SLOTS = new Set(["11:30", "11:45"]);
+const DINNER_START = "16:00";
+const DINNER_END = "16:45";
+const DINNER_SLOTS = new Set([DINNER_START, "16:15", "16:30", DINNER_END]);
 const UKEDAGER = ["Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag"];
 const MANEDER = [
   "Januar",
@@ -311,8 +313,9 @@ export function WeekCalendar({
           {/* Time slots */}
           {TIMER.map((time) => {
             const isFullHour = time.endsWith(":00");
-            const isLunch = LUNCH_SLOTS.has(time);
-            const isLunchStart = time === "11:30";
+            const isDinner = DINNER_SLOTS.has(time);
+            const isDinnerStart = time === DINNER_START;
+            const isDinnerEnd = time === DINNER_END;
             return (
               <div
                 key={time}
@@ -344,17 +347,17 @@ export function WeekCalendar({
                         slotInfo ? "" : "p-0.5"
                       }`}
                     >
-                      {!slotInfo && isLunch && (
+                      {!slotInfo && isDinner && (
                         <div
-                          className={`flex h-full min-h-[25px] items-center justify-center ${isLunchStart ? "rounded-t" : "rounded-b"}`}
+                          className={`flex h-full min-h-[25px] items-center justify-center ${isDinnerStart ? "rounded-t" : ""} ${isDinnerEnd ? "rounded-b" : ""}`}
                           style={{
                             background:
                               "repeating-linear-gradient(135deg, transparent, transparent 3px, rgba(161,161,170,0.15) 3px, rgba(161,161,170,0.15) 6px)",
                           }}
                         >
-                          {isLunchStart && (
+                          {isDinnerStart && (
                             <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500">
-                              Lunsj
+                              Middag
                             </span>
                           )}
                         </div>
