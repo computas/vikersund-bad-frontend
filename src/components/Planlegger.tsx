@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useOptimering } from "@/hooks/useOptimering";
+import { useGrupper } from "@/hooks";
 import { StepIndicator } from "./StepIndicator";
 import { InputdataStep } from "./InputdataStep";
 import { GruppeKalenderStep } from "./GruppeKalenderStep";
@@ -32,7 +33,23 @@ function getWeekNumber(date: Date): number {
 export function Planlegger() {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedMonday, setSelectedMonday] = useState(() => getMondayOfWeek(new Date()));
+  const [harHoppetTilForsteYtelse, setHarHoppetTilForsteYtelse] = useState(false);
   const { status } = useOptimering();
+  const { data: grupper } = useGrupper();
+
+  // Avtalene dateres ut fra ytelsens startdato, ikke ukevelgeren. Uten dette
+  // åpner kalenderen på inneværende uke og ser tom ut når ingen ytelse starter da.
+  useEffect(() => {
+    if (harHoppetTilForsteYtelse || !grupper?.length) return;
+    const startdatoer = grupper
+      .map((g) => g.startDato)
+      .filter((d): d is string => Boolean(d))
+      .sort();
+    if (startdatoer[0]) {
+      setSelectedMonday(getMondayOfWeek(new Date(startdatoer[0])));
+    }
+    setHarHoppetTilForsteYtelse(true);
+  }, [grupper, harHoppetTilForsteYtelse]);
 
   const activeStep = currentStep === 3 && !status?.harResultat ? 2 : currentStep;
 
