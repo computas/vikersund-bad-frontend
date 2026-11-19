@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Pasient } from "@/types";
 import { API_URL } from "@/lib/api";
+import { nummererPasienter } from "@/lib/pasienter";
 
 async function fetchPasienter(): Promise<Pasient[]> {
   const response = await fetch(`${API_URL}/pasienter`);
@@ -14,6 +15,7 @@ export function usePasienter() {
   return useQuery({
     queryKey: ["pasienter"],
     queryFn: fetchPasienter,
+    select: nummererPasienter,
   });
 }
 

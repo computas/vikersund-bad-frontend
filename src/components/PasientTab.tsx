@@ -9,6 +9,7 @@ import { usePasienter } from "@/hooks/usePasienter";
 import { useBehandlere, useBehandlereRangeringer } from "@/hooks/useBehandlere";
 import { formatYtelseId } from "@/lib/colors";
 import { Avtale } from "@/types";
+import { pasientEtikett } from "@/lib/pasienter";
 
 type PasientTabProps = {
   selectedMonday: Date;
@@ -68,7 +69,7 @@ export function PasientTab({ selectedMonday, onWeekChange }: PasientTabProps) {
             key={p.id}
             value={p.id}
           >
-            {p.navn} ({formatYtelseId(p.ytelse)})
+            {pasientEtikett(p)} ({formatYtelseId(p.ytelse)})
           </option>
         ))}
       </select>
@@ -90,7 +91,7 @@ export function PasientTab({ selectedMonday, onWeekChange }: PasientTabProps) {
       {selected && (
         <div className="space-y-3">
           <h2 className="text-xl font-semibold text-zinc-900 dark:text-white">
-            {selected.navn}
+            {pasientEtikett(selected)}
           </h2>
           <div className="grid gap-2 text-sm">
             <InfoField

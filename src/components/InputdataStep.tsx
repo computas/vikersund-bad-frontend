@@ -12,6 +12,7 @@ import { useBehandlereRangeringer } from "@/hooks/useBehandlere";
 import { PasientFormModal } from "./PasientFormModal";
 import { BehandlerFormModal } from "./BehandlerFormModal";
 import type { Behandler, Pasient } from "@/types";
+import { delPasienter, erKunVideo, formatNr } from "@/lib/pasienter";
 
 const DAG_NAVN = ["Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag"];
 
@@ -38,6 +39,7 @@ export function InputdataStep() {
   const deletePasient = useDeletePasient();
   const deleteBehandler = useDeleteBehandler();
 
+  const { paaHuset, kunVideo } = delPasienter(pasienter);
   const gruppeMap = new Map(grupper.map((g) => [g.id, g]));
   const getGruppeNavn = (ytelse: string) => gruppeMap.get(ytelse)?.navn ?? ytelse;
 
@@ -71,8 +73,13 @@ export function InputdataStep() {
             Pasienter
           </h2>
           <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
-            {pasienter.length}
+            {paaHuset} på huset
           </span>
+          {kunVideo > 0 && (
+            <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
+              {kunVideo} kun video
+            </span>
+          )}
           <button
             onClick={() => setShowAddPasient(true)}
             className="ml-auto rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700"
@@ -84,6 +91,7 @@ export function InputdataStep() {
           <table className="w-full text-left text-sm">
             <thead className="bg-zinc-50 text-xs uppercase text-zinc-500 dark:bg-zinc-800/50 dark:text-zinc-400">
               <tr>
+                <th className="px-4 py-3 w-14">Nr</th>
                 <th className="px-4 py-3">Navn</th>
                 <th className="px-4 py-3">Alder</th>
                 <th className="px-4 py-3">Diagnose</th>
@@ -100,6 +108,9 @@ export function InputdataStep() {
                   onClick={() => setEditingPasient(p)}
                   className="cursor-pointer border-t border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-700/50 dark:hover:bg-zinc-800/50"
                 >
+                  <td className="px-4 py-3 font-mono text-zinc-500 dark:text-zinc-400">
+                    {formatNr(p.nr)}
+                  </td>
                   <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-100">
                     {p.navn}
                   </td>
@@ -113,7 +124,9 @@ export function InputdataStep() {
                     {getGruppeNavn(p.ytelse)}
                   </td>
                   <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
-                    {p.ankomstDag != null || p.avreiseDag != null ? (
+                    {erKunVideo(p) ? (
+                      <span className="text-xs">Hjemme, kun videomøter</span>
+                    ) : p.ankomstDag != null || p.avreiseDag != null ? (
                       <span className="text-xs">
                         {p.ankomstDag != null &&
                           `Fra ${getDagNavn(p.ankomstDag)}${p.ankomstTid ? ` kl. ${p.ankomstTid}` : ""}`}

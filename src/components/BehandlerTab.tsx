@@ -10,6 +10,7 @@ import { WeekCalendar, formatDateLocal } from "./WeekCalendar";
 import { AvtaleModal } from "./AvtaleModal";
 import { formatYtelseId } from "@/lib/colors";
 import { Avtale } from "@/types";
+import { pasientEtikett } from "@/lib/pasienter";
 
 type BehandlerTabProps = {
   selectedMonday: Date;
@@ -135,7 +136,7 @@ export function BehandlerTab({ selectedMonday, onWeekChange }: BehandlerTabProps
           {selectedAvtale && (
             <AvtaleModal
               avtale={selectedAvtale}
-              personNavn={pasienter.find((p) => p.id === selectedAvtale.pasientId)?.navn ?? null}
+              personNavn={pasientEtikett(pasienter.find((p) => p.id === selectedAvtale.pasientId))}
               viewMode="behandler"
               onClose={() => setSelectedAvtale(null)}
             />

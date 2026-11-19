@@ -7,6 +7,7 @@ import {
   getCategoryColor,
   formatYtelseId,
 } from "@/lib/colors";
+import { pasientEtikett } from "@/lib/pasienter";
 
 type WeekCalendarProps = {
   avtaler: Avtale[];
@@ -162,8 +163,7 @@ export function WeekCalendar({
       const behandler = behandlere.find((b) => b.id === avtale.behandlerId);
       return behandler?.navn ?? null;
     } else {
-      const pasient = pasienter.find((p) => p.id === avtale.pasientId);
-      return pasient?.navn ?? null;
+      return pasientEtikett(pasienter.find((p) => p.id === avtale.pasientId));
     }
   };
 

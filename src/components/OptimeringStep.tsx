@@ -4,6 +4,7 @@ import { useOptimering } from "@/hooks/useOptimering";
 import { usePasienter, useBehandlere, useGrupper } from "@/hooks";
 import { SolverProgress } from "./SolverProgress";
 import { formatDateLocal } from "./WeekCalendar";
+import { delPasienter } from "@/lib/pasienter";
 
 type OptimeringStepProps = {
   selectedMonday: Date;
@@ -24,6 +25,7 @@ export function OptimeringStep({ selectedMonday }: OptimeringStepProps) {
   const { data: pasienter = [] } = usePasienter();
   const { data: behandlere = [] } = useBehandlere();
   const { data: grupper = [] } = useGrupper();
+  const { paaHuset, kunVideo } = delPasienter(pasienter);
 
   const totalIndividuelleBehov = grupper.reduce((sum, g) => {
     const behovPerPasient = (g.individuelleBehovPerPasient ?? []).reduce((s, b) => s + b.antall, 0);
@@ -42,7 +44,7 @@ export function OptimeringStep({ selectedMonday }: OptimeringStepProps) {
         </h2>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Optimeringen planlegger individuelle behandlingstimer (fysioterapi, kontaktperson m.m.)
-          rundt de faste gruppeaktivitetene. Algoritmen respekterer tidsvinduet for individuelle timer (09:00-15:00),
+          rundt de faste gruppeaktivitetene. Algoritmen respekterer tidsvinduet for individuelle timer (08:00-16:00, start kvart over),
           middag (16:00-17:00), ingen overlapp for pasienter eller behandlere, og kvalifikasjonskrav.
         </p>
       </div>
@@ -50,9 +52,15 @@ export function OptimeringStep({ selectedMonday }: OptimeringStepProps) {
       {/* Oppsummering */}
       <div className="mb-8 flex gap-6 text-center">
         <div>
-          <div className="text-2xl font-bold text-zinc-900 dark:text-white">{pasienter.length}</div>
-          <div className="text-xs text-zinc-500">pasienter</div>
+          <div className="text-2xl font-bold text-zinc-900 dark:text-white">{paaHuset}</div>
+          <div className="text-xs text-zinc-500">pasienter på huset</div>
         </div>
+        {kunVideo > 0 && (
+          <div>
+            <div className="text-2xl font-bold text-zinc-900 dark:text-white">{kunVideo}</div>
+            <div className="text-xs text-zinc-500">kun videomøter</div>
+          </div>
+        )}
         <div>
           <div className="text-2xl font-bold text-zinc-900 dark:text-white">{behandlere.length}</div>
           <div className="text-xs text-zinc-500">behandlere</div>

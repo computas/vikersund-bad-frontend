@@ -10,6 +10,7 @@ export type Pasient = {
   avreiseTid?: string | null;
   preferanser?: Record<string, unknown>;
   ekstraBehov?: BehovTemplate[];
+  nr?: number; // display number, set in usePasienter
 };
 
 export type Behandler = {

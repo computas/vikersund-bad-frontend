@@ -1,12 +1,15 @@
 "use client";
 
-import { useIkkePlanlagt } from "@/hooks";
+import { useIkkePlanlagt, usePasienter } from "@/hooks";
+import { pasientEtikett } from "@/lib/pasienter";
 import { useOptimering } from "@/hooks/useOptimering";
 import { InfoField } from "./InfoField";
 
 export function IkkePlanlagtTab() {
   const { data: ikkePlanlagte = [], isLoading, error } = useIkkePlanlagt();
   const { status } = useOptimering();
+  const { data: pasienter = [] } = usePasienter();
+  const pasientMap = new Map(pasienter.map((p) => [p.id, p]));
 
   if (isLoading) {
     return (
@@ -54,8 +57,12 @@ export function IkkePlanlagtTab() {
     );
   }
 
-  const individuelleIkke = ikkePlanlagte.filter((i) => i.type !== "GRUPPE");
-  const gruppeDroppet = ikkePlanlagte.filter((i) => i.type === "GRUPPE");
+  const nrFor = (pasientId: number) => pasientMap.get(pasientId)?.nr ?? Number.MAX_SAFE_INTEGER;
+  const etikett = (item: { pasientId: number; pasientNavn: string }) =>
+    pasientEtikett(pasientMap.get(item.pasientId)) ?? item.pasientNavn;
+  const sortert = [...ikkePlanlagte].sort((a, b) => nrFor(a.pasientId) - nrFor(b.pasientId));
+  const individuelleIkke = sortert.filter((i) => i.type !== "GRUPPE");
+  const gruppeDroppet = sortert.filter((i) => i.type === "GRUPPE");
 
   return (
     <div className="space-y-6">
@@ -70,7 +77,7 @@ export function IkkePlanlagtTab() {
               className="rounded-md border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800"
             >
               <h3 className="mb-2 font-medium text-zinc-900 dark:text-white">
-                Pasient: {item.pasientNavn}
+                Pasient: {etikett(item)}
               </h3>
               <div className="grid gap-1 text-sm">
                 <InfoField label="Type" value={item.type} />
@@ -96,7 +103,7 @@ export function IkkePlanlagtTab() {
               className="rounded-md border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20"
             >
               <h3 className="mb-2 font-medium text-zinc-900 dark:text-white">
-                Pasient: {item.pasientNavn}
+                Pasient: {etikett(item)}
               </h3>
               <div className="grid gap-1 text-sm">
                 <InfoField label="Gruppeaktivitet" value={item.beskrivelse} />
